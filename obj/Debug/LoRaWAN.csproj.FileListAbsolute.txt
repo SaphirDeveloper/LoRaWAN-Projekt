@@ -17,3 +17,14 @@ C:\Users\User\source\repos\LoRaWAN-Projekt\obj\Debug\LoRaWAN.csproj.CoreCompileI
 C:\Users\User\source\repos\LoRaWAN-Projekt\obj\Debug\LoRaWAN.csproj.CopyComplete
 C:\Users\User\source\repos\LoRaWAN-Projekt\obj\Debug\LoRaWAN.exe
 C:\Users\User\source\repos\LoRaWAN-Projekt\obj\Debug\LoRaWAN.pdb
+C:\Users\Nils Jonack\Source\Repos\SaphirDeveloper\LoRaWAN-Projekt\bin\Debug\LoRaWAN.exe.config
+C:\Users\Nils Jonack\Source\Repos\SaphirDeveloper\LoRaWAN-Projekt\bin\Debug\LoRaWAN.exe
+C:\Users\Nils Jonack\Source\Repos\SaphirDeveloper\LoRaWAN-Projekt\bin\Debug\LoRaWAN.pdb
+C:\Users\Nils Jonack\Source\Repos\SaphirDeveloper\LoRaWAN-Projekt\bin\Debug\Newtonsoft.Json.dll
+C:\Users\Nils Jonack\Source\Repos\SaphirDeveloper\LoRaWAN-Projekt\bin\Debug\Newtonsoft.Json.xml
+C:\Users\Nils Jonack\Source\Repos\SaphirDeveloper\LoRaWAN-Projekt\obj\Debug\LoRaWAN.csproj.AssemblyReference.cache
+C:\Users\Nils Jonack\Source\Repos\SaphirDeveloper\LoRaWAN-Projekt\obj\Debug\LoRaWAN.csproj.SuggestedBindingRedirects.cache
+C:\Users\Nils Jonack\Source\Repos\SaphirDeveloper\LoRaWAN-Projekt\obj\Debug\LoRaWAN.csproj.CoreCompileInputs.cache
+C:\Users\Nils Jonack\Source\Repos\SaphirDeveloper\LoRaWAN-Projekt\obj\Debug\LoRaWAN.csproj.CopyComplete
+C:\Users\Nils Jonack\Source\Repos\SaphirDeveloper\LoRaWAN-Projekt\obj\Debug\LoRaWAN.exe
+C:\Users\Nils Jonack\Source\Repos\SaphirDeveloper\LoRaWAN-Projekt\obj\Debug\LoRaWAN.pdb
