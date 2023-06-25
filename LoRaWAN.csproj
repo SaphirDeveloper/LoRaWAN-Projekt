@@ -45,6 +45,7 @@
     <Compile Include="SemtechPacket.cs" />
     <Compile Include="Server.cs" />
     <Compile Include="Stat.cs" />
+    <Compile Include="TestServer.cs" />
     <Compile Include="Txpk.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -52,6 +53,7 @@
       <HintPath>packages\Newtonsoft.Json.13.0.3\lib\net45\Newtonsoft.Json.dll</HintPath>
     </Reference>
     <Reference Include="System" />
+    <Reference Include="System.Net.Http" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

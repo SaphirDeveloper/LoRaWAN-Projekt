@@ -42,7 +42,7 @@ namespace LoRaWAN
         }
 
         
-
+        /*
         static void Main()
         {
             Stat stat = new Stat("2014-01-12 08:59:28 GMT", 46.24000f, 3.25230f, 145, 2, 2, 2, 100.0f, 2, 2);
@@ -56,6 +56,7 @@ namespace LoRaWAN
             Console.WriteLine(stat.Time);
             Console.ReadKey();
         }
+        */
 
 
     }
