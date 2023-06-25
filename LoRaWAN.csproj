@@ -41,6 +41,7 @@
     <Compile Include="JoinRequest.cs" />
     <Compile Include="Packet.cs" />
     <Compile Include="PacketFactory.cs" />
+    <Compile Include="Rxpk.cs" />
     <Compile Include="SemtechPacket.cs" />
     <Compile Include="Server.cs" />
     <Compile Include="Stat.cs" />
