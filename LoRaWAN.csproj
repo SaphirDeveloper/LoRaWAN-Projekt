@@ -37,16 +37,23 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AppSKeyAns.cs" />
+    <Compile Include="AppSKeyReq.cs" />
     <Compile Include="BackendPacket.cs" />
+    <Compile Include="ErrorNotif.cs" />
+    <Compile Include="JoinAns.cs" />
     <Compile Include="JoinRequest.cs" />
+    <Compile Include="KeyEnvelope.cs" />
     <Compile Include="Packet.cs" />
     <Compile Include="PacketFactory.cs" />
+    <Compile Include="Result.cs" />
     <Compile Include="Rxpk.cs" />
     <Compile Include="SemtechPacket.cs" />
     <Compile Include="Server.cs" />
     <Compile Include="Stat.cs" />
     <Compile Include="TestServer.cs" />
     <Compile Include="Txpk.cs" />
+    <Compile Include="Txpk_Ack.cs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="Newtonsoft.Json, Version=13.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">

@@ -28,3 +28,8 @@ C:\Users\Nils Jonack\Source\Repos\SaphirDeveloper\LoRaWAN-Projekt\obj\Debug\LoRa
 C:\Users\Nils Jonack\Source\Repos\SaphirDeveloper\LoRaWAN-Projekt\obj\Debug\LoRaWAN.csproj.CopyComplete
 C:\Users\Nils Jonack\Source\Repos\SaphirDeveloper\LoRaWAN-Projekt\obj\Debug\LoRaWAN.exe
 C:\Users\Nils Jonack\Source\Repos\SaphirDeveloper\LoRaWAN-Projekt\obj\Debug\LoRaWAN.pdb
+D:\LoRaWan Projekt\LoRaWAN-Projekt\LoRaWAN-Projekt\obj\Debug\LoRaWAN.csproj.AssemblyReference.cache
+D:\LoRaWan Projekt\LoRaWAN-Projekt\LoRaWAN-Projekt\obj\Debug\LoRaWAN.csproj.SuggestedBindingRedirects.cache
+D:\LoRaWan Projekt\LoRaWAN-Projekt\LoRaWAN-Projekt\obj\Debug\LoRaWAN.csproj.CoreCompileInputs.cache
+D:\LoRaWan Projekt\LoRaWAN-Projekt\LoRaWAN-Projekt\obj\Debug\LoRaWAN.exe
+D:\LoRaWan Projekt\LoRaWAN-Projekt\LoRaWAN-Projekt\obj\Debug\LoRaWAN.pdb

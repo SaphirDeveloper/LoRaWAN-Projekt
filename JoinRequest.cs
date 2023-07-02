@@ -10,18 +10,25 @@ namespace LoRaWAN
     class JoinRequest : BackendPacket
     {
 
-        private String _senderNSID;
-        private String _macVersion;
-        private String _phyPayload;
-        private String _devEUI;
-        private String _devAddr;
-        private String _dlSettings;
-        private String _rxDelay;
-        private String _cfList;
+        private String SenderNSID;
+        private String MacVersion;
+        private String PhyPayload;
+        private String DevEUI;
+        private String DevAddr;
+        private String DlSettings;
+        private String RxDelay;
+        private String CfList;
 
-        public JoinRequest()
+        public JoinRequest(string senderNSID, String macVersion, String phyPayload, String devEUI, String devAddr, String dlSettings, String rxDelay, String cfList)
         {
-
+            this.SenderNSID = senderNSID;
+            this.MacVersion = macVersion;
+            this.MacVersion = phyPayload;
+            this.DevEUI = devEUI;
+            this.DevAddr = devAddr;
+            this.DlSettings = dlSettings;
+            this.RxDelay = rxDelay;
+            this.CfList = cfList;
         }
 
 
