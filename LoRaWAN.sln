@@ -1,9 +1,11 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
-VisualStudioVersion = 17.6.33801.468
+VisualStudioVersion = 17.6.33815.320
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LoRaWAN", "LoRaWAN.csproj", "{F1646B06-4AAB-4296-9F44-8491AB26B4AD}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LoRaWAN", "LoRaWAN Backend\LoRaWAN.csproj", "{081DAFB3-F3EC-46DA-9C7B-B4058D188028}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Network Server", "Network Server\Network Server.csproj", "{76DFA9CC-4F5F-48B3-BDF3-B56CE7E9DD5E}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -11,15 +13,19 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{F1646B06-4AAB-4296-9F44-8491AB26B4AD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{F1646B06-4AAB-4296-9F44-8491AB26B4AD}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{F1646B06-4AAB-4296-9F44-8491AB26B4AD}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{F1646B06-4AAB-4296-9F44-8491AB26B4AD}.Release|Any CPU.Build.0 = Release|Any CPU
+		{081DAFB3-F3EC-46DA-9C7B-B4058D188028}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{081DAFB3-F3EC-46DA-9C7B-B4058D188028}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{081DAFB3-F3EC-46DA-9C7B-B4058D188028}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{081DAFB3-F3EC-46DA-9C7B-B4058D188028}.Release|Any CPU.Build.0 = Release|Any CPU
+		{76DFA9CC-4F5F-48B3-BDF3-B56CE7E9DD5E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{76DFA9CC-4F5F-48B3-BDF3-B56CE7E9DD5E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{76DFA9CC-4F5F-48B3-BDF3-B56CE7E9DD5E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{76DFA9CC-4F5F-48B3-BDF3-B56CE7E9DD5E}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
-		SolutionGuid = {ABB5F9B8-C83E-4DD2-A216-16D1EE15925A}
+		SolutionGuid = {B45A8070-84AC-44E2-80B9-BEC45BAE02BC}
 	EndGlobalSection
 EndGlobal
