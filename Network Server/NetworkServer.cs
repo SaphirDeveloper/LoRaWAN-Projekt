@@ -2,7 +2,7 @@
 
 namespace NetworkServer
 {
-    class NetworkServer : Server
+    public class NetworkServer : Server
     {
 
         // Constructor
