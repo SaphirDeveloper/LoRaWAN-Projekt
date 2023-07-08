@@ -7,7 +7,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LoRaWAN", "LoRaWAN Backend\
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Network Server", "Network Server\Network Server.csproj", "{76DFA9CC-4F5F-48B3-BDF3-B56CE7E9DD5E}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Unit Test", "Unit Test\Unit Test.csproj", "{88B43FD0-7028-4B5F-A2CB-E38D2752B7EC}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Unit Test", "Unit Test\Unit Test.csproj", "{88B43FD0-7028-4B5F-A2CB-E38D2752B7EC}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UDPTestClient", "UDPTestClient\UDPTestClient.csproj", "{913315FD-5185-470F-B092-21FC12BCC773}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -27,6 +29,10 @@ Global
 		{88B43FD0-7028-4B5F-A2CB-E38D2752B7EC}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{88B43FD0-7028-4B5F-A2CB-E38D2752B7EC}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{88B43FD0-7028-4B5F-A2CB-E38D2752B7EC}.Release|Any CPU.Build.0 = Release|Any CPU
+		{913315FD-5185-470F-B092-21FC12BCC773}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{913315FD-5185-470F-B092-21FC12BCC773}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{913315FD-5185-470F-B092-21FC12BCC773}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{913315FD-5185-470F-B092-21FC12BCC773}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -22,7 +22,7 @@
             });
         }
 
-        public void Start()
+        public virtual void Start()
         {
             _webApplication.StartAsync();
         }
@@ -32,7 +32,7 @@
             _webApplication.WaitForShutdown();
         }
 
-        public void Shutdown()
+        public virtual void Shutdown()
         {
             _webApplication.StopAsync();
         }

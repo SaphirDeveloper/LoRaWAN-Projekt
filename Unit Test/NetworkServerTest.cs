@@ -4,6 +4,7 @@ using LoRaWAN;
 using System.Text;
 using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json;
+using System.Net.Sockets;
 
 namespace Unit_Test
 {
@@ -23,6 +24,24 @@ namespace Unit_Test
             StringContent content = new StringContent(JsonConvert.SerializeObject(stat), Encoding.UTF8, "application/json");
             HttpClient client = new HttpClient();
             HttpResponseMessage response = client.PostAsync(networkServerURL, content).Result;
+
+            server.Shutdown();
+        }
+
+        [TestMethod]
+        public void NetworkServerUDPTest()
+        {
+            // Start server
+            var server = new NetworkServer.NetworkServer();
+            server.Start();
+
+            // Send UDP message
+            byte[] message = Encoding.ASCII.GetBytes("Hello Network Server!");
+            UdpClient udpClient = new UdpClient(12345);
+            udpClient.Connect("localhost", new ConfigurationBuilder().AddJsonFile("appsettings.json").Build().GetValue<int>("NetworkServerUDP_Port"));
+            udpClient.Send(message);
+            udpClient.Close();
+            udpClient.Dispose();
 
             server.Shutdown();
         }
