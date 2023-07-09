@@ -8,13 +8,13 @@ namespace LoRaWAN
 {
     class BackendPacket : Packet
     {
-        protected string ProtocolVersion;
-        protected string SenderID;
-        protected string ReceiverID;
-        protected string MessageType;
-        protected string SenderToken;
-        protected string ReceiverToken;
-        protected int TransactionID;
+        public string ProtocolVersion;
+        public string SenderID;
+        public string ReceiverID;
+        public string MessageType;
+        public string SenderToken;
+        public string ReceiverToken;
+        public int TransactionID;
 
     }
 }

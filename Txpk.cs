@@ -27,9 +27,9 @@ namespace LoRaWAN
         public string Data;
         public bool Ncrc;
 
-        public Txpk(bool imme, int tmst, long tmms, float freq, int rfch, int powe, string modu, 
-            string datr, string codr , int fdev, bool ipol, int prea, int size, string data, bool ncrc) 
-        { 
+        public Txpk(bool imme, int tmst, long tmms, float freq, int rfch, int powe, string modu,
+            string datr, string codr, int fdev, bool ipol, int prea, int size, string data, bool ncrc)
+        {
             this.Imme = imme;
             this.Tmst = tmst;
             this.Tmms = tmms;

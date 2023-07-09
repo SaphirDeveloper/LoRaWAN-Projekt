@@ -46,6 +46,9 @@
     <Compile Include="KeyEnvelope.cs" />
     <Compile Include="Packet.cs" />
     <Compile Include="PacketFactory.cs" />
+    <Compile Include="PullAck.cs" />
+    <Compile Include="PullResp.cs" />
+    <Compile Include="PushAck.cs" />
     <Compile Include="Result.cs" />
     <Compile Include="Rxpk.cs" />
     <Compile Include="SemtechPacket.cs" />
