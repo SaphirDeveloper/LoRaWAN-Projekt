@@ -89,7 +89,7 @@ namespace LoRaWAN
 
             // Convert the id string to bytes
             byte[] id = Encoding.ASCII.GetBytes(Id);
-            encodedBytes.AddRange(token);
+            encodedBytes.AddRange(id);
 
             // Convert to byte array 
             byte[] encodedPayload = encodedBytes.ToArray();
