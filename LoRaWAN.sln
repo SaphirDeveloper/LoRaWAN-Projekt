@@ -9,7 +9,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Network Server", "Network S
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Unit Test", "Unit Test\Unit Test.csproj", "{88B43FD0-7028-4B5F-A2CB-E38D2752B7EC}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UDPTestClient", "UDPTestClient\UDPTestClient.csproj", "{913315FD-5185-470F-B092-21FC12BCC773}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "UDPTestClient", "UDPTestClient\UDPTestClient.csproj", "{913315FD-5185-470F-B092-21FC12BCC773}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

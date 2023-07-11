@@ -30,10 +30,13 @@ namespace NetworkServer
                 // Await UDP packet
                 byte[] bytes = _udpClient.Receive(ref _groupEP);
 
-                // Process UDP packet
-                Console.WriteLine("UDP packet received:");
-                Console.WriteLine(Encoding.ASCII.GetString(bytes));
-                Console.WriteLine();
+                Packet packet = SemtechPacket.DecodePayload(bytes);
+                if (packet is SemtechPacket semtechPacket)
+                {
+                    byte[] result = semtechPacket.EncodePayload();
+                    Console.WriteLine(Encoding.ASCII.GetString(result));
+                    _udpClient.Send(result, result.Length, _groupEP);
+                }
             }
         }
 

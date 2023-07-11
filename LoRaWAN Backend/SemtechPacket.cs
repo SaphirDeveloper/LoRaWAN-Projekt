@@ -71,24 +71,24 @@ namespace LoRaWAN
 
 
 
-        public byte[] EncodePayload(SemtechPacket semtechPacket)
+        public byte[] EncodePayload()
         {
 
             // Create a byte list to store the encoded packet
             List<byte> encodedBytes = new List<byte>();
 
             // Convert the protocol version string to bytes
-            byte[] protocolVersion = Encoding.ASCII.GetBytes(semtechPacket.ProtocolVersion);
+            byte[] protocolVersion = Encoding.ASCII.GetBytes(ProtocolVersion);
             // Add the protocol version to the byte list
             encodedBytes.AddRange(protocolVersion);
 
             // Convert the token string to bytes
-            byte[] token = Encoding.ASCII.GetBytes(semtechPacket.Token);
+            byte[] token = Encoding.ASCII.GetBytes(Token);
             // Add the token to the byte list
             encodedBytes.AddRange(token);
 
             // Convert the id string to bytes
-            byte[] id = Encoding.ASCII.GetBytes(semtechPacket.Id);
+            byte[] id = Encoding.ASCII.GetBytes(Id);
             encodedBytes.AddRange(token);
 
             // Convert to byte array 
