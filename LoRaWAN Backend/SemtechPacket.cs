@@ -38,7 +38,7 @@ namespace LoRaWAN
 
 
             // Extract the JSON content from the byte stream
-            byte[] jsonBytes = byteStream.Skip(12).Take(byteStream.Length - 13).ToArray();
+            byte[] jsonBytes = byteStream.Skip(12).Take(byteStream.Length - 12).ToArray();
             string jsonPayload = System.Text.Encoding.UTF8.GetString(jsonBytes);
 
 
