@@ -43,23 +43,50 @@ namespace LoRaWAN
             byte[] jsonBytes = byteStream.Skip(12).Take(byteStream.Length - 12).ToArray();
             string jsonString = System.Text.Encoding.UTF8.GetString(jsonBytes);
 
-            PHYpayload phyPayload = ExtractPhyPaload(jsonString);
-
-            /*
-            JObject jsonObject = JObject.Parse(jsonString);
-
-
-            if (jsonObject["rxpk"] != null)
+            PHYpayload phyPayload = ExtractPhyPayload(jsonString);
+            if (phyPayload != null)
             {
-                Console.WriteLine("payload contains data");
-                string data = jsonObject["rxpk"][0]["data"].Value<string>();
-                if (data != null)
+                // Example binary
+                Console.WriteLine();
+                Console.WriteLine("PHYPayload (binary example):");
+                Console.WriteLine("mhdr: " + HexStringToBinaryString("00"));
+                if (phyPayload.mhdr.MType == "000")
                 {
-                    byte[] decodedBase64 = Convert.FromBase64String(data);
-                    string bitString = ByteArrayToBit(decodedBase64);
+                    Console.WriteLine("appEUI: " + HexStringToBinaryString("04B6480000000000"));
+                    Console.WriteLine("devEUI: " + HexStringToBinaryString("04B6480C00507720"));
+                    Console.WriteLine("devNounce: " + HexStringToBinaryString("B3E8"));
                 }
+                Console.WriteLine("mic: " + HexStringToBinaryString("09CE8718"));
+                
+                // Current binary
+                Console.WriteLine();
+                Console.WriteLine("PHYPayload (binary):");
+                Console.WriteLine("mType: " + phyPayload.mhdr.MType);
+                Console.WriteLine("rfu: " + phyPayload.mhdr.MType);
+                Console.WriteLine("major: " + phyPayload.mhdr.Major);
+                if (phyPayload.mhdr.MType == "000")
+                {
+                    Console.WriteLine("appEUI: " + phyPayload.joinRequest.AppEUI);
+                    Console.WriteLine("devEUI: " + phyPayload.joinRequest.DevEUI);
+                    Console.WriteLine("devNounce: " + phyPayload.joinRequest.DevNonce);
+                }
+                Console.WriteLine("mic: " + phyPayload.mic);
+                Console.WriteLine();
+
+                // Current hex
+                Console.WriteLine("PHYPayload (hex):");
+                Console.WriteLine("mhdr: " + BinaryStringToHexString(phyPayload.mhdr.MType + phyPayload.mhdr.Rfu + phyPayload.mhdr.Major));
+                if (phyPayload.mhdr.MType == "000")
+                {
+                    Console.WriteLine("appEUI: " + BinaryStringToHexString(phyPayload.joinRequest.AppEUI));
+                    Console.WriteLine("devEUI: " + BinaryStringToHexString(phyPayload.joinRequest.DevEUI));
+                    Console.WriteLine("devNounce: " + BinaryStringToHexString(phyPayload.joinRequest.DevNonce));
+                }
+                Console.WriteLine("mic: " + BinaryStringToHexString(phyPayload.mic));
+                Console.WriteLine();
             }
-            */
+
+            
 
             // Create the packet based on ID
             PacketFactory factory = new PacketFactory();
@@ -144,6 +171,59 @@ namespace LoRaWAN
             return bitString;
         }
 
+        public static string HexStringToBinaryString(string hexString)
+        {
+            if (hexString == null)
+                throw new ArgumentNullException(nameof(hexString));
+
+            StringBuilder binaryStringBuilder = new StringBuilder(hexString.Length * 4 + (hexString.Length / 2)); // Account for the added spaces.
+
+            int bitCount = 0; // Keep track of the number of bits added.
+
+            foreach (char hexChar in hexString)
+            {
+                // Convert each hexadecimal character to its 4-bit binary representation.
+                string binaryValue = Convert.ToString(Convert.ToInt32(hexChar.ToString(), 16), 2).PadLeft(4, '0');
+
+                // Append the binary value to the result.
+                binaryStringBuilder.Append(binaryValue);
+                bitCount += 4; // Increment the bit count.
+
+                // Insert a space after every 8 bits.
+                if (bitCount % 8 == 0)
+                {
+                    binaryStringBuilder.Append(' ');
+                }
+            }
+
+            return binaryStringBuilder.ToString();
+        }
+      
+        public static string BinaryStringToHexString(string binary)
+        {
+            if (string.IsNullOrEmpty(binary))
+                return binary;
+
+            StringBuilder result = new StringBuilder(binary.Length / 8 + 1);
+
+            // TODO: check all 1's or 0's... throw otherwise
+
+            int mod4Len = binary.Length % 8;
+            if (mod4Len != 0)
+            {
+                // pad to length multiple of 8
+                binary = binary.PadLeft(((binary.Length / 8) + 1) * 8, '0');
+            }
+
+            for (int i = 0; i < binary.Length; i += 8)
+            {
+                string eightBits = binary.Substring(i, 8);
+                result.AppendFormat("{0:X2}", Convert.ToByte(eightBits, 2));
+            }
+
+            return result.ToString();
+        }
+
         /*
         public static void Main()
         {
@@ -178,7 +258,7 @@ namespace LoRaWAN
         */
 
 
-        public static PHYpayload ExtractPhyPaload(string json)
+        public static PHYpayload ExtractPhyPayload(string json)
         {
             PHYpayload phyPayload = null;
             JObject jsonObject = JObject.Parse(json);
@@ -212,20 +292,23 @@ namespace LoRaWAN
                     Console.WriteLine("MACPayload length: " + macPayloadString.Length + " and content: " + macPayloadString);
                     //Console.ReadLine();
 
-                    
+                    //building MIC
+                    string mic = bitString.Substring(bitString.Length - micLength, micLength);
+                    Console.WriteLine("MIC length: " + mic.Length + " and content: " + mic);
+
                     //message type (mType) check to know how to interpreted MACPayload bits 
                     if (mType == "000")
                     {
-                        string appEui = macPayloadString.Substring(0, 64);
-                        string devEui = macPayloadString.Substring(64, 64);
-                        string devNonce = macPayloadString.Substring(128, 16);
+                        string appEui = endianReverseBitString(macPayloadString.Substring(0, 64));
+                        string devEui = endianReverseBitString(macPayloadString.Substring(64, 64));
+                        string devNonce = endianReverseBitString(macPayloadString.Substring(128, 16));
 
+                        JoinRequest joinRequest = new JoinRequest(appEui, devEui, devNonce);
+                        phyPayload = new PHYpayload(mhdr, joinRequest, mic);
                     }
 
 
-                    //building MIC
-                    string micString = bitString.Substring(bitString.Length - micLength, micLength);
-                    Console.WriteLine("MIC length: " + micString.Length + " and content: " + micString);
+                    
                     //Console.ReadLine();
 
                     
@@ -236,6 +319,13 @@ namespace LoRaWAN
 
 
             return phyPayload;
+        }
+
+        public static string endianReverseBitString(string bitString)
+        {
+            byte[] bytes = ToByteArray(BinaryStringToHexString(bitString));
+            Array.Reverse(bytes);
+            return ByteArrayToBit(bytes);
         }
     }
 }

@@ -25,5 +25,14 @@
         }
 
 
+        public string AppEUI;
+        public string DevNonce;
+        public JoinRequest(string appEUI, string devEUI, string devNonce) 
+        {
+            this.AppEUI = appEUI;
+            this.DevEUI = devEUI;
+            this.DevNonce = devNonce;
+        }
+
     }
 }

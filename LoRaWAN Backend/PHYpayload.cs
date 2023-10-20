@@ -3,30 +3,33 @@
 
     public class PHYpayload
     {
-        private MHDR _mhdr;
-        private MACpayload _macPayload;
-        private JoinRequest _joinRequest;
-        private JoinAns _joinAns;
-        private string _mic;
+        public MHDR mhdr { get; private set; }
+        public MACpayload macPayload { get; private set; }
+        public JoinRequest joinRequest { get; private set; }
+        public JoinAns joinAns { get; private set; }
+        public string mic { get; private set; }
+
         public PHYpayload(MHDR _mhdr, MACpayload _macPayload, string _mic)
         {
-            this._mhdr = _mhdr;
-            this._macPayload = _macPayload;
-            this._mic = _mic;
+            this.mhdr = _mhdr;
+            this.macPayload = _macPayload;
+            this.mic = _mic;
         }
 
         public PHYpayload(MHDR _mhdr, JoinRequest _joinRequest, string _mic)
         {
-            this._mhdr = _mhdr;
-            this._joinRequest = _joinRequest;
-            this._mic = _mic;
+            this.mhdr = _mhdr;
+            this.joinRequest = _joinRequest;
+            this.mic = _mic;
         }
 
         public PHYpayload(MHDR _mhdr, JoinAns _joinAns, string _mic)
         {
-            this._mhdr = _mhdr;
-            this._joinAns = _joinAns;
-            this._mic = _mic;
+            this.mhdr = _mhdr;
+            this.joinAns = _joinAns;
+            this.mic = _mic;
         }
+
+        
     }
 }
