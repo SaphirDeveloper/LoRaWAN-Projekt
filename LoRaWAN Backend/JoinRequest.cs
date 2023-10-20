@@ -1,6 +1,6 @@
 ﻿namespace LoRaWAN
 {
-    class JoinRequest : BackendPacket
+    public class JoinRequest : BackendPacket
     {
 
         public String SenderNSID;
@@ -16,7 +16,7 @@
         {
             this.SenderNSID = senderNSID;
             this.MacVersion = macVersion;
-            this.MacVersion = phyPayload;
+            this.PhyPayload = phyPayload;
             this.DevEUI = devEUI;
             this.DevAddr = devAddr;
             this.DlSettings = dlSettings;

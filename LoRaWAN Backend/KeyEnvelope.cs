@@ -1,12 +1,12 @@
 ﻿namespace LoRaWAN
 {
-    internal class KeyEnvelope
+    public class KeyEnvelope
     {
 
-        private String KekLabel;
-        private String AesKey;
+        private string KekLabel;
+        private string AesKey;
 
-        public KeyEnvelope(String kekLabel, String aesKey)
+        public KeyEnvelope(string kekLabel, string aesKey)
         {
             this.KekLabel = kekLabel;
             this.AesKey = aesKey;

@@ -1,6 +1,6 @@
 ﻿namespace LoRaWAN
 {
-    internal class Result
+    public class Result
     {
 
         private String ResultCode;

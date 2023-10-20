@@ -1,6 +1,6 @@
 ﻿namespace LoRaWAN
 {
-    internal class JoinAns
+    public class JoinAns
     {
 
         private String ReceiverNSID;

@@ -1,6 +1,6 @@
 ﻿namespace LoRaWAN
 {
-    class BackendPacket : Packet
+    public class BackendPacket : Packet
     {
         public string ProtocolVersion;
         public string SenderID;

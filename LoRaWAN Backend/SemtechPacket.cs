@@ -1,4 +1,6 @@
-﻿using System.Text;
+﻿using Newtonsoft.Json.Linq;
+using System.Buffers.Text;
+using System.Text;
 
 namespace LoRaWAN
 {
@@ -7,7 +9,7 @@ namespace LoRaWAN
         public string ProtocolVersion;
         public string Token;
         public string Id;
-
+        
 
 
         // decode Packet 
@@ -28,7 +30,7 @@ namespace LoRaWAN
             // Extract the packet identifier
             byte packetIdentifier = byteStream[3];
             // Converting to string
-            string id = System.Convert.ToString(byteStream[3]);
+            string id = System.Convert.ToString(packetIdentifier);
 
 
             // Extract the gateway unique identifier
@@ -39,15 +41,30 @@ namespace LoRaWAN
 
             // Extract the JSON content from the byte stream
             byte[] jsonBytes = byteStream.Skip(12).Take(byteStream.Length - 12).ToArray();
-            string jsonPayload = System.Text.Encoding.UTF8.GetString(jsonBytes);
+            string jsonString = System.Text.Encoding.UTF8.GetString(jsonBytes);
+
+            PHYpayload phyPayload = ExtractPhyPaload(jsonString);
+
+            /*
+            JObject jsonObject = JObject.Parse(jsonString);
 
 
-
+            if (jsonObject["rxpk"] != null)
+            {
+                Console.WriteLine("payload contains data");
+                string data = jsonObject["rxpk"][0]["data"].Value<string>();
+                if (data != null)
+                {
+                    byte[] decodedBase64 = Convert.FromBase64String(data);
+                    string bitString = ByteArrayToBit(decodedBase64);
+                }
+            }
+            */
 
             // Create the packet based on ID
             PacketFactory factory = new PacketFactory();
 
-            Packet packet = factory.CreateSemtechPacket(id, token, jsonPayload);
+            Packet packet = factory.CreateSemtechPacket(id, token, jsonString);
 
 
             /*
@@ -60,11 +77,9 @@ namespace LoRaWAN
 
             Console.WriteLine("Packet created: " + packet.GetType().Name);
 
-            Console.WriteLine(packet.ToString());
-
+            //Console.WriteLine(packet.ToString());
             Console.ReadLine();
             */
-
             return packet;
 
         }
@@ -78,17 +93,17 @@ namespace LoRaWAN
             List<byte> encodedBytes = new List<byte>();
 
             // Convert the protocol version string to bytes
-            byte[] protocolVersion = Encoding.ASCII.GetBytes(ProtocolVersion);
+            byte[] protocolVersion = Encoding.UTF8.GetBytes(ProtocolVersion);
             // Add the protocol version to the byte list
             encodedBytes.AddRange(protocolVersion);
 
             // Convert the token string to bytes
-            byte[] token = Encoding.ASCII.GetBytes(Token);
+            byte[] token = Encoding.UTF8.GetBytes(Token);
             // Add the token to the byte list
             encodedBytes.AddRange(token);
 
             // Convert the id string to bytes
-            byte[] id = Encoding.ASCII.GetBytes(Id);
+            byte[] id = Encoding.UTF8.GetBytes(Id);
             encodedBytes.AddRange(id);
 
             // Convert to byte array 
@@ -111,6 +126,22 @@ namespace LoRaWAN
             for (int i = 0; i < hexString.Length; i += 2)
                 retval[i / 2] = Convert.ToByte(hexString.Substring(i, 2), 16);
             return retval;
+        }
+
+        /// Convert a byte array to a bit string
+        public static string ByteArrayToBit(byte[] ba)
+        {
+            string bitString = "";
+            foreach (byte b in ba)
+            {
+                // Convert the byte to its binary representation with leading zeros
+                string binary = Convert.ToString(b, 2).PadLeft(8, '0');
+
+                // Concatenate the binary representation to the bit string
+                bitString += binary;
+
+            }
+            return bitString;
         }
 
         /*
@@ -146,5 +177,65 @@ namespace LoRaWAN
         }
         */
 
+
+        public static PHYpayload ExtractPhyPaload(string json)
+        {
+            PHYpayload phyPayload = null;
+            JObject jsonObject = JObject.Parse(json);
+
+            if (jsonObject["rxpk"] != null)
+            {
+                Console.WriteLine("payload contains data");
+
+                string data = jsonObject["rxpk"][0]["data"].Value<string>();
+                if (data != null)
+                {
+                    byte[] decodedBase64 = Convert.FromBase64String(data);
+                    string bitString = ByteArrayToBit(decodedBase64);
+
+                    int mhdrLength = 8;
+                    int micLength = 32;
+                    int macPayloadLength = bitString.Length - mhdrLength - micLength;
+
+                    //building MHDR
+                    string mhdrString = bitString.Substring(0, mhdrLength);
+                    string major = mhdrString.Substring(0, 2); // Bits 0 and 1
+                    string rfu = mhdrString.Substring(2, 3);   // Bits 2 to 4
+                    string mType = mhdrString.Substring(5, 3); // Bits 5 to 7
+
+                    MHDR mhdr = new MHDR(mType, rfu, major);
+                    Console.WriteLine("mType: " + mhdr.MType + " rfu: " + mhdr.Rfu + " major: " + mhdr.Major);
+                    //Console.ReadLine();
+
+                    //building MACPayload
+                    string macPayloadString = bitString.Substring(mhdrLength, macPayloadLength);
+                    Console.WriteLine("MACPayload length: " + macPayloadString.Length + " and content: " + macPayloadString);
+                    //Console.ReadLine();
+
+                    
+                    //message type (mType) check to know how to interpreted MACPayload bits 
+                    if (mType == "000")
+                    {
+                        string appEui = macPayloadString.Substring(0, 64);
+                        string devEui = macPayloadString.Substring(64, 64);
+                        string devNonce = macPayloadString.Substring(128, 16);
+
+                    }
+
+
+                    //building MIC
+                    string micString = bitString.Substring(bitString.Length - micLength, micLength);
+                    Console.WriteLine("MIC length: " + micString.Length + " and content: " + micString);
+                    //Console.ReadLine();
+
+                    
+                }
+
+            }
+
+
+
+            return phyPayload;
+        }
     }
 }
