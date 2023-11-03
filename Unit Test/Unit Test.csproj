@@ -20,6 +20,7 @@
   <ItemGroup>
     <ProjectReference Include="..\LoRaWAN Backend\LoRaWAN.csproj" />
     <ProjectReference Include="..\Network Server\Network Server.csproj" />
+    <ProjectReference Include="..\UDPTestClient\UDPTestClient.csproj" />
   </ItemGroup>
 
 </Project>

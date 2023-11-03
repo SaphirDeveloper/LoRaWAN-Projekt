@@ -39,7 +39,7 @@ namespace NetworkServer
                 }
             }
         }
-
+        
         public override void ProcessPacket(string json)
         {
             Console.WriteLine(json);
