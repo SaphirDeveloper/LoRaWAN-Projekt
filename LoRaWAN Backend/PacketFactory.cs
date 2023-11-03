@@ -2,60 +2,50 @@
 {
     public class PacketFactory
     {
-
-
-        //Semtech Packet (Gateway-Network Server)
-        public Packet CreateSemtechPacket(string id, string token, string jsonpayload)
+        public Packet CreatePacket(string jsonpayload)
         {
+            string[] temp = jsonpayload.Split('*');
+            string json = temp[0];
 
-            switch (id)
-            {
-                //Push_Data received
-                case "0":
-                    Console.WriteLine("PushData reseved and PushAck send");
-                    return new PushAck(token);
+            if (temp.Length > 1) {
+                string id = temp[1];
+                string token = temp[2];
 
-                //Pull_Data received
-                case "2":
-                    return new PullAck(token);
+                switch (id)
+                {
+                    //Push_Data received
+                    case "0":
+                        Console.WriteLine("PushData reseved and PushAck send");
+                        return new PushAck(token);
 
-                //Pull_Resp
-                //send imidiatly after Pull_Ack if data has to be transfered back to the sensor
-                case "Beispielnummer":
+                    //Pull_Data received
+                    case "2":
+                        return new PullAck(token);
 
-                //---not implemented yet---//
+                    //Pull_Resp
+                    //send imidiatly after Pull_Ack if data has to be transfered back to the sensor
+                    case "Beispielnummer":
 
-                /*
-                return new PullResp(token, "JSON PAYLOAD");
-                */
+                    //---not implemented yet---//
 
-                //Tx_Ack reseived
-                case "5":
+                    /*
+                    return new PullResp(token, "JSON PAYLOAD");
+                    */
 
-                //---not implemented yet---//
+                    //Tx_Ack reseived
+                    case "5":
 
-                default:
-                    throw new ArgumentException("Unrecognized packet type.");
+                    //---not implemented yet---//
 
+                    default:
+                        throw new ArgumentException("Unrecognized packet type.");
+
+                }
             }
-
-
-        }
-
-        //Backend Packet (Network Server-Join Server- Application Server)
-        public Packet CreateBackendPacket(String protocolVersion, String senderID, String receiverID, String transactioID, String messageType, String senderToken, String receiverToken)
-        {
-            switch (messageType)
+            else
             {
-                case "1":
-
-
-
-
-                default:
-                    throw new ArgumentException("Unrecognized packet type.");
+                throw new NotImplementedException();
             }
-
         }
 
     }

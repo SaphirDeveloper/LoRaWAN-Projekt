@@ -14,7 +14,7 @@ namespace LoRaWAN
 
         // decode Packet 
         // only needed when uplink (Gateway -> NS) or downlink (NS -> Gateway)
-        public static Packet DecodePayload(byte[] byteStream)
+        public static string DecodePayload(byte[] byteStream)
         {
 
             // Extract the protocol version
@@ -42,6 +42,8 @@ namespace LoRaWAN
             // Extract the JSON content from the byte stream
             byte[] jsonBytes = byteStream.Skip(12).Take(byteStream.Length - 12).ToArray();
             string jsonString = System.Text.Encoding.UTF8.GetString(jsonBytes);
+
+            Console.WriteLine(jsonString);
 
             PHYpayload phyPayload = ExtractPhyPayload(jsonString);
             if (phyPayload != null)
@@ -86,29 +88,7 @@ namespace LoRaWAN
                 Console.WriteLine();
             }
 
-            
-
-            // Create the packet based on ID
-            PacketFactory factory = new PacketFactory();
-
-            Packet packet = factory.CreateSemtechPacket(id, token, jsonString);
-
-
-            /*
-            //---------Console Output---------//
-            Console.WriteLine("protocolVersion: " + protocolVersion);
-            Console.WriteLine("Token: " + token);
-            Console.WriteLine("ID: " + id);
-            Console.WriteLine("gatewayIdentifierString: " + gatewayIdentifierString);
-            Console.WriteLine("json: " + jsonPayload);
-
-            Console.WriteLine("Packet created: " + packet.GetType().Name);
-
-            //Console.WriteLine(packet.ToString());
-            Console.ReadLine();
-            */
-            return packet;
-
+            return jsonString + "*" + id + "*" + token;
         }
 
 
@@ -299,6 +279,7 @@ namespace LoRaWAN
                     //message type (mType) check to know how to interpreted MACPayload bits 
                     if (mType == "000")
                     {
+                        // Join Request
                         string appEui = endianReverseBitString(macPayloadString.Substring(0, 64));
                         string devEui = endianReverseBitString(macPayloadString.Substring(64, 64));
                         string devNonce = endianReverseBitString(macPayloadString.Substring(128, 16));
@@ -306,12 +287,27 @@ namespace LoRaWAN
                         JoinRequest joinRequest = new JoinRequest(appEui, devEui, devNonce);
                         phyPayload = new PHYpayload(mhdr, joinRequest, mic);
                     }
+                    else if (mType == "001")
+                    {
+                        // Join Accept
+                        string appNonce = endianReverseBitString(macPayloadString.Substring(0, 24));
+                        string netID = endianReverseBitString(macPayloadString.Substring (24, 24));
+                        string devAddr = endianReverseBitString(macPayloadString.Substring(48, 32));
+                        string dlSettings = macPayloadString.Substring(80, 8);
+                        string rxDelay = macPayloadString.Substring(88, 8);
+                        // TODO
+                    }
+                    else if (mType == "010")
+                    {
+                        // Unconfirmed Data Up
+                    }
 
 
-                    
+
+
                     //Console.ReadLine();
 
-                    
+
                 }
 
             }
