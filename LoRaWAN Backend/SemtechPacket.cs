@@ -278,10 +278,10 @@ namespace LoRaWAN
                     int macPayloadLength = bitString.Length - mhdrLength - micLength;
 
                     //building MHDR
-                    string mhdrString = endianReverseBitString(bitString.Substring(0, mhdrLength));
-                    string major = endianReverseBitString(mhdrString.Substring(0, 2)); // Bits 0 and 1
-                    string rfu = endianReverseBitString(mhdrString.Substring(2, 3));   // Bits 2 to 4
-                    string mType = endianReverseBitString(mhdrString.Substring(5, 3)); // Bits 5 to 7
+                    string mhdrString = bitString.Substring(0, mhdrLength);
+                    string major = mhdrString.Substring(0, 2); // Bits 0 and 1
+                    string rfu = mhdrString.Substring(2, 3);   // Bits 2 to 4
+                    string mType = mhdrString.Substring(5, 3); // Bits 5 to 7
 
                     MHDR mhdr = new MHDR(mType, rfu, major);
                     Console.WriteLine("mType: " + mhdr.MType + " rfu: " + mhdr.Rfu + " major: " + mhdr.Major);
