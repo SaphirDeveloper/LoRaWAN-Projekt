@@ -44,7 +44,10 @@
             }
             else
             {
-                throw new NotImplementedException();
+                PHYpayload phyPayload = SemtechPacket.ExtractPhyPayload(json);
+                Console.WriteLine("Creating Payload");
+                return phyPayload;
+
             }
         }
 

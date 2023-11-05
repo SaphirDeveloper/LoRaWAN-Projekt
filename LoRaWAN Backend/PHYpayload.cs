@@ -1,7 +1,7 @@
 ﻿namespace LoRaWAN
 {
 
-    public class PHYpayload
+    public class PHYpayload : BackendPacket
     {
         public MHDR mhdr { get; private set; }
         public MACpayload macPayload { get; private set; }
