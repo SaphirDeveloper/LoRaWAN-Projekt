@@ -2,12 +2,14 @@
 using System.Net.Sockets;
 using System.Text;
 using LoRaWAN;
+using Newtonsoft.Json;
 
 namespace NetworkServer
 {
     public class NetworkServer : Server
     {
         // Field
+        private HttpClient httpClient = new HttpClient();
         private PacketFactory _packetFactory = new PacketFactory();
         private Thread _udpListnerThread;
         private UdpClient _udpClient;
@@ -33,12 +35,20 @@ namespace NetworkServer
 
                 string jsonString = SemtechPacket.DecodePayload(bytes);
                 Packet packet = _packetFactory.CreatePacket(jsonString);
-
+                
                 if (packet is SemtechPacket semtechPacket)
                 {
                     byte[] result = semtechPacket.EncodePayload();
                     Console.WriteLine(Encoding.ASCII.GetString(result));
                     _udpClient.Send(result, result.Length, _groupEP);
+                }
+
+                if (jsonString.ToLower().Contains("txpk") || jsonString.ToLower().Contains("rxpk"))
+                {
+                    PHYpayload backendPacket = _packetFactory.CreateBackendPacket(jsonString);
+                    string joinURL = new ConfigurationBuilder().AddJsonFile("appsettings.json").Build()["JoinServerURL"];
+                    string json = JsonConvert.SerializeObject(backendPacket);
+                    httpClient.PostAsJsonAsync(joinURL, json).Wait();
                 }
             }
         }

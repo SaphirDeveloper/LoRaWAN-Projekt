@@ -1,11 +1,17 @@
-﻿namespace LoRaWAN
+﻿using System.Runtime.Serialization;
+using Newtonsoft.Json;
+
+namespace LoRaWAN
 {
+
+    [DataContract]
     public class JoinRequest : BackendPacket
     {
 
         public String SenderNSID;
         public String MacVersion;
         public String PhyPayload;
+        [DataMember]
         public String DevEUI;
         public String DevAddr;
         public String DlSettings;
@@ -24,8 +30,9 @@
             this.CfList = cfList;
         }
 
-
+        [DataMember]
         public string AppEUI;
+        [DataMember]
         public string DevNonce;
         public JoinRequest(string appEUI, string devEUI, string devNonce) 
         {

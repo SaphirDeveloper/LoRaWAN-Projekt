@@ -45,48 +45,23 @@ namespace LoRaWAN
 
             Console.WriteLine(jsonString);
 
-            PHYpayload phyPayload = ExtractPhyPayload(jsonString);
-            if (phyPayload != null)
-            {
-                // Example binary
-                Console.WriteLine();
-                Console.WriteLine("PHYPayload (binary example):");
-                Console.WriteLine("mhdr: " + HexStringToBinaryString("00"));
-                if (phyPayload.mhdr.MType == "000")
-                {
-                    Console.WriteLine("appEUI: " + HexStringToBinaryString("04B6480000000000"));
-                    Console.WriteLine("devEUI: " + HexStringToBinaryString("04B6480C00507720"));
-                    Console.WriteLine("devNounce: " + HexStringToBinaryString("B3E8"));
-                }
-                Console.WriteLine("mic: " + HexStringToBinaryString("09CE8718"));
-                
-                // Current binary
-                Console.WriteLine();
-                Console.WriteLine("PHYPayload (binary):");
-                Console.WriteLine("mType: " + phyPayload.mhdr.MType);
-                Console.WriteLine("rfu: " + phyPayload.mhdr.MType);
-                Console.WriteLine("major: " + phyPayload.mhdr.Major);
-                if (phyPayload.mhdr.MType == "000")
-                {
-                    Console.WriteLine("appEUI: " + phyPayload.joinRequest.AppEUI);
-                    Console.WriteLine("devEUI: " + phyPayload.joinRequest.DevEUI);
-                    Console.WriteLine("devNounce: " + phyPayload.joinRequest.DevNonce);
-                }
-                Console.WriteLine("mic: " + phyPayload.mic);
-                Console.WriteLine();
+            JObject jsonObject = JObject.Parse(jsonString);
 
-                // Current hex
-                Console.WriteLine("PHYPayload (hex):");
-                Console.WriteLine("mhdr: " + BinaryStringToHexString(phyPayload.mhdr.MType + phyPayload.mhdr.Rfu + phyPayload.mhdr.Major));
-                if (phyPayload.mhdr.MType == "000")
+            if (jsonObject["rxpk"] != null)
+            {
+                Console.WriteLine("payload contains data");
+
+                string data = jsonObject["rxpk"][0]["data"].Value<string>();
+                if (data != null)
                 {
-                    Console.WriteLine("appEUI: " + BinaryStringToHexString(phyPayload.joinRequest.AppEUI));
-                    Console.WriteLine("devEUI: " + BinaryStringToHexString(phyPayload.joinRequest.DevEUI));
-                    Console.WriteLine("devNounce: " + BinaryStringToHexString(phyPayload.joinRequest.DevNonce));
+                    byte[] decodedBase64 = Convert.FromBase64String(data);
+                    string bitString = ByteArrayToBit(decodedBase64);
+
+                    jsonObject["rxpk"][0]["data"] = bitString;
+                    jsonString = jsonObject.ToString();
                 }
-                Console.WriteLine("mic: " + BinaryStringToHexString(phyPayload.mic));
-                Console.WriteLine();
             }
+            
 
             return jsonString + "*" + id + "*" + token;
         }

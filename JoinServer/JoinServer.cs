@@ -17,5 +17,16 @@ namespace JoinServer
             throw new NotImplementedException();
         }
 
+        public JoinAns ProcessJoinReq(JoinRequest req) 
+        { 
+            return new JoinAns(
+                SemtechPacket.HexStringToBinaryString("473F81"),
+                SemtechPacket.HexStringToBinaryString("000000"),
+                SemtechPacket.HexStringToBinaryString("000000000"),
+                SemtechPacket.HexStringToBinaryString("23"),
+                SemtechPacket.HexStringToBinaryString("E0")
+            );
+        }
+
     }
 }
