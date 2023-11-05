@@ -8,6 +8,7 @@ namespace NetworkServer
     public class NetworkServer : Server
     {
         // Field
+        private PacketFactory _packetFactory = new PacketFactory();
         private Thread _udpListnerThread;
         private UdpClient _udpClient;
         private IPEndPoint _groupEP;
@@ -30,7 +31,9 @@ namespace NetworkServer
                 // Await UDP packet
                 byte[] bytes = _udpClient.Receive(ref _groupEP);
 
-                Packet packet = SemtechPacket.DecodePayload(bytes);
+                string jsonString = SemtechPacket.DecodePayload(bytes);
+                Packet packet = _packetFactory.CreatePacket(jsonString);
+
                 if (packet is SemtechPacket semtechPacket)
                 {
                     byte[] result = semtechPacket.EncodePayload();
@@ -42,8 +45,19 @@ namespace NetworkServer
         
         public override void ProcessPacket(string json)
         {
+            
             Console.WriteLine(json);
             Console.WriteLine();
+        }
+
+        public JoinRequest ProcessJoinReq(byte[] joinReq)
+        {
+            throw new NotImplementedException();
+        }
+
+        public byte[] ProcessJoinAns(JoinAns joinAns) 
+        { 
+            throw new NotImplementedException(); 
         }
 
         public override void Start()
