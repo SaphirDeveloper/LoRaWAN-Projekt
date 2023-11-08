@@ -18,6 +18,7 @@
                 StreamReader reader = new StreamReader(request.Body);
                 string json = await reader.ReadToEndAsync();
                 Console.WriteLine(request.Headers.ContentType);
+                json = json.Replace("\"", "").Replace("\\u0022", "\"");
                 ProcessPacket(json);
             });
         }

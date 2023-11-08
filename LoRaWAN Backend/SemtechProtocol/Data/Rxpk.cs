@@ -1,6 +1,6 @@
-﻿namespace LoRaWAN
+﻿namespace LoRaWAN.SemtechProtocol.Data
 {
-    internal class Rxpk : SemtechPacket
+    public class Rxpk
     {
         public string Time;
         public long Tmms;
@@ -20,20 +20,20 @@
         public Rxpk(string time, int tmms, long tmst, float freq, int chan, int rfch, int stat, string modu,
             string datr, string codr, int rssi, float lsnr, int size, string data)
         {
-            this.Time = time;
-            this.Tmst = tmms;
-            this.Tmms = tmst;
-            this.Freq = freq;
-            this.Chan = chan;
-            this.Rfch = rfch;
-            this.Stat = stat;
-            this.Modu = modu;
-            this.Datr = datr;
-            this.Codr = codr;
-            this.Rssi = rssi;
-            this.Lsnr = lsnr;
-            this.Size = size;
-            this.Data = data;
+            Time = time;
+            Tmst = tmms;
+            Tmms = tmst;
+            Freq = freq;
+            Chan = chan;
+            Rfch = rfch;
+            Stat = stat;
+            Modu = modu;
+            Datr = datr;
+            Codr = codr;
+            Rssi = rssi;
+            Lsnr = lsnr;
+            Size = size;
+            Data = data;
         }
     }
 }

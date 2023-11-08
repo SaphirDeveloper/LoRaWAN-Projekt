@@ -1,4 +1,4 @@
-﻿namespace LoRaWAN
+﻿namespace LoRaWAN.BackendPackets
 {
     public class BackendPacket : Packet
     {
@@ -9,6 +9,5 @@
         public string SenderToken;
         public string ReceiverToken;
         public int TransactionID;
-
     }
 }

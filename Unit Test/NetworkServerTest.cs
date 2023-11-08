@@ -1,10 +1,8 @@
-
-
-using LoRaWAN;
 using System.Text;
 using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json;
 using System.Net.Sockets;
+using LoRaWAN.SemtechProtocol.Data;
 
 namespace Unit_Test
 {

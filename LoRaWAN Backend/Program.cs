@@ -1,5 +1,5 @@
 using System.Text;
-using LoRaWAN;
+using LoRaWAN.SemtechProtocol.Data;
 using Newtonsoft.Json;
 
 

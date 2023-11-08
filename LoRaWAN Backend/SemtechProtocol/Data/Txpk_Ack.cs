@@ -1,12 +1,12 @@
-﻿namespace LoRaWAN
+﻿namespace LoRaWAN.SemtechProtocol.Data
 {
-    internal class Txpk_Ack
+    public class Txpk_Ack
     {
         public string Error;
 
         public Txpk_Ack(string error)
         {
-            this.Error = error;
+            Error = error;
         }
     }
 }

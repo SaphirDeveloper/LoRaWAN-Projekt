@@ -1,21 +1,19 @@
-﻿namespace LoRaWAN
+﻿namespace LoRaWAN.SemtechProtocol
 {
-    class PushAck : SemtechPacket
+    public class PullAck : SemtechPacket
     {
-        public PushAck(string token)
+        public PullAck(string token)
         {
 
-            this.ProtocolVersion = "2";
+            this.ProtocolVersion = "02";
             this.Token = token;
-            this.Id = "0x01";
+            this.Id = "04";
         }
-
 
         public override string ToString()
         {
             // Include the specific attributes of the PushAck class in the string representation
             return $"PushAck [ProtocolVersion: {ProtocolVersion}, Token: {Token}, Id: {Id}]";
         }
-
     }
 }
