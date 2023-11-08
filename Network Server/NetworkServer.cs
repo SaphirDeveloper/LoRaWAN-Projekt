@@ -93,16 +93,6 @@ namespace NetworkServer
             }
         }
 
-        public JoinRequest ProcessJoinReq(byte[] joinReq)
-        {
-            throw new NotImplementedException();
-        }
-
-        public byte[] ProcessJoinAns(JoinAns joinAns) 
-        { 
-            throw new NotImplementedException(); 
-        }
-
         public override void Start()
         {
             base.Start();
