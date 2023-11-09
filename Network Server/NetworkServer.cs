@@ -55,12 +55,18 @@ namespace NetworkServer
                     // Process rxpk in the push data packet
                     foreach (Rxpk rxpk in pushData.rxpks)
                     {
+                        byte[] tmp = Convert.FromBase64String(rxpk.Data);
+                        string mType = Convert.ToString(bytes[0], 2).PadLeft(8, '0').Substring(0, 3);
+
+                        if (mType == "000")
+                        {
                             // REIHENFOLGE FALSCH? (erst decoden -> dann bestimmen ob JoinReq oder nicht)
                             JoinRequest joinRequest = new JoinRequest();
                             joinRequest.MessageType = "JoinReq";
                             joinRequest.PhyPayload = PHYpayloadFactory.DecodePHYPayloadFromBase64(rxpk.Data).Hex;
                             string json = JsonConvert.SerializeObject(joinRequest);
-                            _httpClient.PostAsJsonAsync(Appsettings.JoinServerURL, json).Wait();                               
+                            _httpClient.PostAsJsonAsync(Appsettings.JoinServerURL, json).Wait();
+                        }
                     }
                 }
                 // checking for pull data packet
