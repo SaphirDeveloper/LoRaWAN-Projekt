@@ -60,7 +60,7 @@ namespace NetworkServer
 
                         if (mType == "000")
                         {
-                            // REIHENFOLGE FALSCH? (erst decoden -> dann bestimmen ob JoinReq oder nicht)
+                            // create join request from the data inside the rxpk.Data
                             JoinRequest joinRequest = new JoinRequest();
                             joinRequest.MessageType = "JoinReq";
                             joinRequest.PhyPayload = PHYpayloadFactory.DecodePHYPayloadFromBase64(rxpk.Data).Hex;
