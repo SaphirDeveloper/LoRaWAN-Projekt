@@ -10,6 +10,7 @@ namespace LoRaWAN.SemtechProtocol
         {
             SemtechPacket packet;
 
+            // Semtech identifier check 
             switch (bytes[3])
             {
                 case 0:
@@ -27,9 +28,11 @@ namespace LoRaWAN.SemtechProtocol
                 default:
                     throw new ArgumentException($"Unknown ID: {bytes[3]}");
             }
-
+            // Protocol Version (0 byte)
             packet.ProtocolVersion = BitConverter.ToString(bytes[..1]).Replace("-", "");
+            // Token (1-2 byte)
             packet.Token = BitConverter.ToString(bytes[1..3]).Replace("-", "");
+            // Id (3 byte)
             packet.Id = BitConverter.ToString(bytes[3..4]).Replace("-", "");
 
             return packet;
@@ -38,10 +41,12 @@ namespace LoRaWAN.SemtechProtocol
         public static PushData DecodePushData(byte[] bytes)
         {
             PushData packet = new PushData();
-
+            // GatewayMACaddress (4-11 byte)
             packet.GatewayMACaddress = BitConverter.ToString(bytes[4..12]).Replace("-", "");
+            // decode JSON
             packet.JSON = System.Text.Encoding.UTF8.GetString(bytes[12..]);
             JObject jObject = JObject.Parse(packet.JSON);
+            // extracting all possible jObjects
             packet.rxpks = jObject["rxpk"]?.ToObject<Rxpk[]>();
             packet.stat = jObject["stat"]?.ToObject<Stat>();
 
@@ -51,7 +56,7 @@ namespace LoRaWAN.SemtechProtocol
         public static PullData DecodePullData(byte[] bytes)
         {
             PullData packet = new PullData();
-
+            // GatewayMACaddress (4-11 byte)
             packet.GatewayMACaddress = BitConverter.ToString(bytes[4..]).Replace("-", "");
 
             return packet;

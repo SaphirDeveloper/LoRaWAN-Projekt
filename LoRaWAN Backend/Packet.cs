@@ -3,6 +3,6 @@
     public abstract class Packet
     {
         
-        //encoding packet
+        
     }
 }

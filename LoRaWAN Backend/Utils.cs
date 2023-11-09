@@ -4,6 +4,7 @@ namespace LoRaWAN
 {
     public static class Utils
     {
+        // Convert from Big Endian to Little Endian
         public static string EndianReverseHexString(string hex)
         {
             StringBuilder sb = new StringBuilder();
@@ -14,6 +15,7 @@ namespace LoRaWAN
             return sb.ToString();
         }
 
+        // Convert hex string to byte array
         public static byte[] HexStringToByteArray(string hex)
         {
             byte[] retval = new byte[hex.Length / 2];

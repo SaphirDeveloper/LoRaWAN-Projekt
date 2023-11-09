@@ -17,7 +17,8 @@ namespace LoRaWAN.SemtechProtocol
             this.Token = token;
             this.Id = "03";
             this.txpk = txpk;
-            this.JSON = $"{{\"txpk\":{JsonConvert.SerializeObject(txpk)}}}";
+            // embedding the serialized txpk object inside the JSON string
+            this.JSON = $"{{\"txpk\":{JsonConvert.SerializeObject(txpk)}}}"; 
         }
 
         public override byte[] EncodeSemtechPacket()

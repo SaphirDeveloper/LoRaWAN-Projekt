@@ -17,9 +17,9 @@ namespace LoRaWAN.PHYPayload
             PHYpayload payload = new PHYpayload();
 
             payload.Hex = hex;
-            payload.MHDR = hex[..2];
+            payload.MHDR = hex[..2]; // Extract the first 2 characters.
             payload.MACpayload = DecodeMACpayload(payload.MHDR, hex[2..^8]);
-            payload.MIC = hex[^8..];
+            payload.MIC = hex[^8..]; // Extract the last 8 characters.
 
             return payload;
         }
@@ -49,7 +49,7 @@ namespace LoRaWAN.PHYPayload
         public static MACpayloadJoinRequest DecodeMACpayloadJoinRequest(string hex)
         {
             MACpayloadJoinRequest payload = new MACpayloadJoinRequest();
-
+            // Extract AppEUI, DevEUI, and DevNonce from the hex string
             payload.AppEUI = Utils.EndianReverseHexString(hex[..16]);
             payload.DevEUI = Utils.EndianReverseHexString(hex[16..32]);
             payload.DevNonce = Utils.EndianReverseHexString(hex[32..]);
@@ -60,7 +60,7 @@ namespace LoRaWAN.PHYPayload
         public static MACpayloadJoinAccept DecodeMACpayloadJoinAccept(string hex)
         {
             MACpayloadJoinAccept payload = new MACpayloadJoinAccept();
-
+            // Extract AppNonce, NetID, DevAddr, DLSettings, RxDelay, and CFList from the hex string
             payload.AppNonce = Utils.EndianReverseHexString(hex[..6]);
             payload.NetID = Utils.EndianReverseHexString(hex[6..12]);
             payload.DevAddr = Utils.EndianReverseHexString(hex[12..20]);
@@ -77,8 +77,10 @@ namespace LoRaWAN.PHYPayload
         {
             PHYpayload phyPayload = new PHYpayload();
             MACpayloadJoinAccept macPayload = new MACpayloadJoinAccept();
-            
+
+            // Initialize the PHYpayload and MACpayload objects
             phyPayload.MACpayload = macPayload;
+            // binary: 00100000 (001 = JoinAns) 
             phyPayload.MHDR = "20";
             macPayload.AppNonce = appNonce;
             macPayload.NetID = netID;
@@ -87,6 +89,7 @@ namespace LoRaWAN.PHYPayload
             macPayload.RxDelay = rxDelay;
             phyPayload.MIC = mic;
 
+            // Build the hexadecimal representation of the payload
             StringBuilder sb = new StringBuilder();
             sb.Append(Utils.EndianReverseHexString(appNonce));
             sb.Append(Utils.EndianReverseHexString(netID));
