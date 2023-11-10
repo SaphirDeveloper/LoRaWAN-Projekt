@@ -52,20 +52,23 @@ namespace NetworkServer
                     Console.WriteLine(BitConverter.ToString(ack));
                     _udpClient.Send(ack, ack.Length, _groupEP);
 
-                    // Process rxpk in the push data packet
-                    foreach (Rxpk rxpk in pushData.rxpks)
+                    if (pushData.rxpks != null)
                     {
-                        byte[] tmp = Convert.FromBase64String(rxpk.Data);
-                        string mType = Convert.ToString(bytes[0], 2).PadLeft(8, '0').Substring(0, 3);
-
-                        if (mType == "000")
+                        // Process rxpk in the push data packet
+                        foreach (Rxpk rxpk in pushData.rxpks)
                         {
-                            // create join request from the data inside the rxpk.Data
-                            JoinRequest joinRequest = new JoinRequest();
-                            joinRequest.MessageType = "JoinReq";
-                            joinRequest.PhyPayload = PHYpayloadFactory.DecodePHYPayloadFromBase64(rxpk.Data).Hex;
-                            string json = JsonConvert.SerializeObject(joinRequest);
-                            _httpClient.PostAsJsonAsync(Appsettings.JoinServerURL, json).Wait();
+                            byte[] tmp = Convert.FromBase64String(rxpk.Data);
+                            string mType = Convert.ToString(bytes[0], 2).PadLeft(8, '0').Substring(0, 3);
+
+                            if (mType == "000")
+                            {
+                                // create join request from the data inside the rxpk.Data
+                                JoinRequest joinRequest = new JoinRequest();
+                                joinRequest.MessageType = "JoinReq";
+                                joinRequest.PhyPayload = PHYpayloadFactory.DecodePHYPayloadFromBase64(rxpk.Data).Hex;
+                                string json = JsonConvert.SerializeObject(joinRequest);
+                                _httpClient.PostAsJsonAsync(Appsettings.JoinServerURL, json).Wait();
+                            }
                         }
                     }
                 }
@@ -83,12 +86,12 @@ namespace NetworkServer
                     {
                         byte[] pullResp = pullResponesQueue.Dequeue();
                         _udpClient.Send(pullResp, pullResp.Length, _groupEP);
-
-                        // Receive and process tx ack after sending Pull Response
-                        byte[] txAck = _udpClient.Receive(ref _groupEP);
-                        SemtechPacket ackPacket = SemtechPacketFactory.DecodeSemtechPacket(txAck);
-                        Console.WriteLine($"Packet received after PullResp: {ackPacket.Id}");
                     }
+                }
+                else if(packet.Id == "05")
+                {
+                    // Receive and process tx ack
+                    Console.WriteLine("TxAck received");
                 }
             }
         }
