@@ -26,7 +26,7 @@ namespace JoinServer
             if ((bool)(jObject["MessageType"]?.Value<string>().Equals("JoinReq")))
             {
                 // If it's a JoinReq, create a JoinAccept PHYpayload and send a JoinAns to the Network Server
-                PHYpayload phyPayload = PHYpayloadFactory.CreatePHYpayloadJoinAccept("E8B0C9", "000000", "00000000", "94", "35", "73373778");
+                PHYpayload phyPayload = PHYpayloadFactory.CreatePHYpayloadJoinAccept("E8B0C9", "000000", "00000000", "94", "8", "73373778");
                 JoinAns joinAns = new JoinAns();
                 joinAns.MessageType = "JoinAns";
                 joinAns.PhyPayload = phyPayload.Hex;
