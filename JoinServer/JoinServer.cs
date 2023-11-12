@@ -15,6 +15,7 @@ namespace JoinServer
     public class JoinServer : Server
     {
         private HttpClient _httpClient = new HttpClient();
+        private List<EndDevice> _devices = EndDevice.ReadEndDeviceCSVList();
 
         public JoinServer() : base(Appsettings.JoinServerURL) { }
 
