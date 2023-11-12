@@ -33,7 +33,7 @@ namespace LoRaWAN
             }
         }
 
-        public static void Log(string logMessage, TextWriter txtWriter)
+        private static void Log(string logMessage, TextWriter txtWriter)
         {
             try
             {
