@@ -40,7 +40,7 @@ namespace NetworkServer
             {
                 // Await UDP packet
                 byte[] bytes = _udpClient.Receive(ref _groupEP);
-
+                Logger.LogWrite(BitConverter.ToString(bytes));
                 SemtechPacket packet = SemtechPacketFactory.DecodeSemtechPacket(bytes);
                 
                 // checking for push data packet
