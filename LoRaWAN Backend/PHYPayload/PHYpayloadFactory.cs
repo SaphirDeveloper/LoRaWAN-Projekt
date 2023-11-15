@@ -1,4 +1,5 @@
 ﻿using System.Text;
+using Microsoft.AspNetCore.Http.HttpResults;
 
 namespace LoRaWAN.PHYPayload
 {
@@ -73,7 +74,7 @@ namespace LoRaWAN.PHYPayload
         }
 
         // Create
-        public static PHYpayload CreatePHYpayloadJoinAccept(string appNonce, string netID, string devAddr, string dlSettings, string rxDelay, string mic)
+        public static PHYpayload CreatePHYpayloadJoinAccept(string appNonce, string netID, string devAddr, string dlSettings, string rxDelay, string appKey)
         {
             PHYpayload phyPayload = new PHYpayload();
             MACpayloadJoinAccept macPayload = new MACpayloadJoinAccept();
@@ -87,6 +88,10 @@ namespace LoRaWAN.PHYPayload
             macPayload.DevAddr = devAddr;
             macPayload.DLSettings = dlSettings;
             macPayload.RxDelay = rxDelay;
+
+            // Calculate MIC
+            byte[] cmac = Cryptography.AESCMAC(Utils.HexStringToByteArray(appKey), Utils.HexStringToByteArray(phyPayload.MHDR + macPayload.AppNonce + macPayload.NetID + macPayload.DevAddr + macPayload.DLSettings + macPayload.RxDelay + macPayload.CFList));
+            string mic = BitConverter.ToString(cmac[0..4]).Replace("-", "");
             phyPayload.MIC = mic;
 
             // Build the hexadecimal representation of the payload
@@ -97,7 +102,6 @@ namespace LoRaWAN.PHYPayload
             sb.Append(Utils.EndianReverseHexString(dlSettings));
             sb.Append(Utils.EndianReverseHexString(rxDelay));
             macPayload.Hex = sb.ToString();
-
             sb.Insert(0, phyPayload.MHDR);
             sb.Append(mic);
             phyPayload.Hex = sb.ToString();
