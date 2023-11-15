@@ -21,7 +21,7 @@ namespace JoinServer
 
         public override void ProcessPacket(string json)
         {
-            Logger.LogWrite(json);
+            Logger.LogWrite(json, "Join Server");
             Console.WriteLine(json);
             JObject jObject = JObject.Parse(json);
             // Check if the MessageType is "JoinReq"

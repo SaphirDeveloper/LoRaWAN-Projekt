@@ -40,7 +40,7 @@ namespace NetworkServer
             {
                 // Await UDP packet
                 byte[] bytes = _udpClient.Receive(ref _groupEP);
-                Logger.LogWrite(BitConverter.ToString(bytes));
+                Logger.LogWrite(BitConverter.ToString(bytes), "Network Server");
                 SemtechPacket packet = SemtechPacketFactory.DecodeSemtechPacket(bytes);
                 
                 // checking for push data packet
@@ -98,6 +98,7 @@ namespace NetworkServer
         
         public override void ProcessPacket(string json)
         {
+            Logger.LogWrite(json, "Network Server");
             JObject jObject = JObject.Parse(json);
             // Check if MessageType is "JoinAns"
             if ((bool)(jObject["MessageType"]?.Value<string>().Equals("JoinAns")))

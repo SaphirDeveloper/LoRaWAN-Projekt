@@ -15,7 +15,7 @@ namespace LoRaWAN
         }
         */
 
-        public static void LogWrite(string logMessage)
+        public static void LogWrite(string logMessage, string serverName)
         {
             // More flexibility, adds a log file inside each assembly location
             // m_exePath = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
@@ -25,7 +25,7 @@ namespace LoRaWAN
             {
                 using (StreamWriter w = File.AppendText(m_exePath + "\\" + "log.txt"))
                 {
-                    Log(logMessage, w);
+                    Log(logMessage, serverName, w);
                 }
             }
             catch (Exception ex)
@@ -33,13 +33,15 @@ namespace LoRaWAN
             }
         }
 
-        private static void Log(string logMessage, TextWriter txtWriter)
+        private static void Log(string logMessage, string serverName, TextWriter txtWriter)
         {
             try
             {
                 txtWriter.Write("\r\nLog Entry : ");
                 txtWriter.WriteLine("{0} {1}", DateTime.Now.ToLongTimeString(),
                     DateTime.Now.ToLongDateString());
+                txtWriter.WriteLine("  >>Server:");
+                txtWriter.WriteLine("  >>{0}", serverName);
                 txtWriter.WriteLine("  >>Packet contains:");
                 txtWriter.WriteLine("  >>{0}", logMessage);
                 txtWriter.WriteLine("--------------------------------------------------");
