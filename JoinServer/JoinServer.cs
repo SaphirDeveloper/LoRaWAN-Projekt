@@ -47,7 +47,7 @@ namespace JoinServer
 
 
                 // If it's a JoinReq, create a JoinAccept PHYpayload and send a JoinAns to the Network Server
-                PHYpayload joinAnsPhyPayload = PHYpayloadFactory.CreatePHYpayloadJoinAccept("E8B0C9", "000000", "00000000", "94", "08", device.AppKey);
+                PHYpayload joinAnsPhyPayload = PHYpayloadFactory.CreatePHYpayloadJoinAccept("000000", "00000000", "94", "08", device.AppKey);
                 MACpayloadJoinAccept joinAcceptMacPayload = (MACpayloadJoinAccept)joinAnsPhyPayload.MACpayload;
                 JoinAns joinAns = new JoinAns();
                 joinAns.MessageType = "JoinAns";

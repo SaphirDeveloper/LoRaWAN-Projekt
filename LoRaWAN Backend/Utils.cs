@@ -28,7 +28,7 @@ namespace LoRaWAN
         }
 
 
-        private static readonly HashSet<int> usedNumbers = new HashSet<int>();
+        private static readonly HashSet<string> usedNumbers = new HashSet<string>();
         private static readonly RandomNumberGenerator rng = RandomNumberGenerator.Create();
 
         public static string GenerateUniqueRandomNumber(byte[] buffer)
@@ -36,13 +36,13 @@ namespace LoRaWAN
             // Creates random number according to the buffer size
             rng.GetBytes(buffer);
 
-            int randomNumber = BitConverter.ToInt32(buffer, 0);
+            string randomNumber = BitConverter.ToString(buffer).Replace("-", "");
 
             // Creates a new number if the previouse number was allready generated once
             while (!usedNumbers.Add(randomNumber))
             {
                 rng.GetBytes(buffer);
-                randomNumber = BitConverter.ToInt32(buffer, 0);
+                randomNumber = BitConverter.ToString(buffer).Replace("-", "");
             }
 
             // Convert the integer to a hexadecimal string

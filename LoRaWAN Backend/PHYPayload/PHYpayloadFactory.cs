@@ -74,10 +74,12 @@ namespace LoRaWAN.PHYPayload
         }
 
         // Create
-        public static PHYpayload CreatePHYpayloadJoinAccept(string appNonce, string netID, string devAddr, string dlSettings, string rxDelay, string appKey)
+        public static PHYpayload CreatePHYpayloadJoinAccept(string netID, string devAddr, string dlSettings, string rxDelay, string appKey)
         {
             PHYpayload phyPayload = new PHYpayload();
             MACpayloadJoinAccept macPayload = new MACpayloadJoinAccept();
+
+            string appNonce = Utils.GenerateUniqueRandomNumber(new byte[3]);
 
             // Initialize the PHYpayload and MACpayload objects
             phyPayload.MACpayload = macPayload;
@@ -112,10 +114,12 @@ namespace LoRaWAN.PHYPayload
             return phyPayload;
         }
 
-        public static PHYpayload CreatePHYpayloadJoinAccept(string appNonce, string netID, string devAddr, string dlSettings, string rxDelay, string cfList, string appKey)
+        public static PHYpayload CreatePHYpayloadJoinAccept(string netID, string devAddr, string dlSettings, string rxDelay, string cfList, string appKey)
         {
             PHYpayload phyPayload = new PHYpayload();
             MACpayloadJoinAccept macPayload = new MACpayloadJoinAccept();
+
+            string appNonce = Utils.GenerateUniqueRandomNumber(new byte[3]);
 
             // Initialize the PHYpayload and MACpayload objects
             phyPayload.MACpayload = macPayload;
