@@ -89,11 +89,6 @@ namespace LoRaWAN.PHYPayload
             macPayload.DLSettings = dlSettings;
             macPayload.RxDelay = rxDelay;
 
-            // Calculate MIC
-            byte[] cmac = Cryptography.AESCMAC(Utils.HexStringToByteArray(appKey), Utils.HexStringToByteArray(phyPayload.MHDR + macPayload.AppNonce + macPayload.NetID + macPayload.DevAddr + macPayload.DLSettings + macPayload.RxDelay + macPayload.CFList));
-            string mic = BitConverter.ToString(cmac[0..4]).Replace("-", "");
-            phyPayload.MIC = mic;
-
             // Build the hexadecimal representation of the payload
             StringBuilder sb = new StringBuilder();
             sb.Append(Utils.EndianReverseHexString(appNonce));
@@ -103,8 +98,56 @@ namespace LoRaWAN.PHYPayload
             sb.Append(Utils.EndianReverseHexString(rxDelay));
             macPayload.Hex = sb.ToString();
             sb.Insert(0, phyPayload.MHDR);
+
+            // Calculate MIC
+            byte[] cmac = Cryptography.AESCMAC(Utils.HexStringToByteArray(appKey), Utils.HexStringToByteArray(phyPayload.MHDR + macPayload.Hex));
+            string mic = BitConverter.ToString(cmac[0..4]).Replace("-", "");
+            phyPayload.MIC = mic;
+
             sb.Append(mic);
             phyPayload.Hex = sb.ToString();
+
+            phyPayload.Hex = "20" + BitConverter.ToString(Cryptography.AESDecrypt(Utils.HexStringToByteArray(appKey), Utils.HexStringToByteArray(macPayload.Hex + mic))).Replace("-", "");
+
+            return phyPayload;
+        }
+
+        public static PHYpayload CreatePHYpayloadJoinAccept(string appNonce, string netID, string devAddr, string dlSettings, string rxDelay, string cfList, string appKey)
+        {
+            PHYpayload phyPayload = new PHYpayload();
+            MACpayloadJoinAccept macPayload = new MACpayloadJoinAccept();
+
+            // Initialize the PHYpayload and MACpayload objects
+            phyPayload.MACpayload = macPayload;
+            // binary: 00100000 (001 = JoinAns) 
+            phyPayload.MHDR = "20";
+            macPayload.AppNonce = appNonce;
+            macPayload.NetID = netID;
+            macPayload.DevAddr = devAddr;
+            macPayload.DLSettings = dlSettings;
+            macPayload.RxDelay = rxDelay;
+            macPayload.CFList = cfList;
+
+            // Build the hexadecimal representation of the payload
+            StringBuilder sb = new StringBuilder();
+            sb.Append(Utils.EndianReverseHexString(appNonce));
+            sb.Append(Utils.EndianReverseHexString(netID));
+            sb.Append(Utils.EndianReverseHexString(devAddr));
+            sb.Append(Utils.EndianReverseHexString(dlSettings));
+            sb.Append(Utils.EndianReverseHexString(rxDelay));
+            sb.Append(cfList);
+            macPayload.Hex = sb.ToString();
+            sb.Insert(0, phyPayload.MHDR);
+
+            // Calculate MIC
+            byte[] cmac = Cryptography.AESCMAC(Utils.HexStringToByteArray(appKey), Utils.HexStringToByteArray(phyPayload.MHDR + macPayload.Hex));
+            string mic = BitConverter.ToString(cmac[0..4]).Replace("-", "");
+            phyPayload.MIC = mic;
+
+            sb.Append(mic);
+            phyPayload.Hex = sb.ToString();
+
+            phyPayload.Hex = "20" + BitConverter.ToString(Cryptography.AESDecrypt(Utils.HexStringToByteArray(appKey), Utils.HexStringToByteArray(macPayload.Hex + mic))).Replace("-", "");
 
             return phyPayload;
         }

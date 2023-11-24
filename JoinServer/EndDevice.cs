@@ -4,7 +4,8 @@
     {
         public string DevEUI { get; private set; }
         public string AppKey { get; private set; }
-
+        public string AppSKey { get; set; }
+        public string NwkSKey { get; set; }
 
         private EndDevice(string devEUI, string appKey)
         {
