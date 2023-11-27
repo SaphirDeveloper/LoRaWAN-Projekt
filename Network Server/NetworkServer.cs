@@ -58,7 +58,7 @@ namespace NetworkServer
                         foreach (Rxpk rxpk in pushData.rxpks)
                         {
                             byte[] tmp = Convert.FromBase64String(rxpk.Data);
-                            string mType = Convert.ToString(bytes[0], 2).PadLeft(8, '0').Substring(0, 3);
+                            string mType = Convert.ToString(tmp[0], 2).PadLeft(8, '0').Substring(0, 3);
 
                             if (mType == "000")
                             {
@@ -68,6 +68,34 @@ namespace NetworkServer
                                 joinRequest.PhyPayload = PHYpayloadFactory.DecodePHYPayloadFromBase64(rxpk.Data).Hex;
                                 string json = JsonConvert.SerializeObject(joinRequest);
                                 _httpClient.PostAsJsonAsync(Appsettings.JoinServerURL, json).Wait();
+                            }
+                            if (mType == "010")
+                            { // unconfirmed Dáta uplink
+                                DataUp dataUp = new DataUp();
+                                dataUp.MessageType = "DataUp_unconf";
+                                dataUp.PhyPayload = PHYpayloadFactory.DecodePHYPayloadFromBase64(rxpk.Data).Hex;
+                                string json = JsonConvert.SerializeObject(dataUp);
+                            }
+                            if (mType == "100")
+                            { // confirmed Dáta uplink
+                                DataUp dataUp = new DataUp();
+                                dataUp.MessageType = "DataUp_conf";
+                                dataUp.PhyPayload = PHYpayloadFactory.DecodePHYPayloadFromBase64(rxpk.Data).Hex;
+                                string json = JsonConvert.SerializeObject(dataUp);
+                            }
+                            if (mType == "011")
+                            { // unconfirmed Data downlink
+                                DataDown dataDown = new DataDown();
+                                dataDown.MessageType = "DataDown_unconf";
+                                dataDown.PhyPayload = PHYpayloadFactory.DecodePHYPayloadFromBase64(rxpk.Data).Hex;
+                                string json = JsonConvert.SerializeObject(dataDown);
+                            }
+                            if (mType == "101")
+                            { // confirmed Data downlink
+                                DataDown dataDown = new DataDown();
+                                dataDown.MessageType = "DataDown_conf";
+                                dataDown.PhyPayload = PHYpayloadFactory.DecodePHYPayloadFromBase64(rxpk.Data).Hex;
+                                string json = JsonConvert.SerializeObject(dataDown);
                             }
                         }
                     }

@@ -27,6 +27,13 @@ namespace LoRaWAN
             return retval;
         }
 
+        public static bool GetBit(byte b, int bitNumber)
+        {
+            // Perform a bitwise AND operation to check if the specified bit is set
+            // the bitmask created from the shift is used to perform a bool check on a specific bit  
+            bool bit = (b & (1 << bitNumber - 1)) != 0;
+            return bit;
+        }
 
         private static readonly HashSet<string> usedNumbers = new HashSet<string>();
         private static readonly RandomNumberGenerator rng = RandomNumberGenerator.Create();

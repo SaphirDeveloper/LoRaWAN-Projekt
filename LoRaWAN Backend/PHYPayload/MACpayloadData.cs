@@ -1,16 +1,11 @@
 ﻿namespace LoRaWAN.PHYPayload
 {
-    public class MACpayloadData
+    public class MACpayloadData : MACpayload
     {
-        private FHDR _fhdr;
-        private string _fPort;
-        private string _frmPayload;
+        public FHDR Fhdr { get; internal set; }
+        public string Fport { get; internal set; }
+        public string FRMpayload { get; internal set; }
+ 
 
-        public MACpayloadData(FHDR _fhdr, string _fPort, string _frmPayload)
-        {
-            this._fhdr = _fhdr;
-            this._fPort = _fPort;
-            this._frmPayload = _frmPayload;
-        }
     }
 }

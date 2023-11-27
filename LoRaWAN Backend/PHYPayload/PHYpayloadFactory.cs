@@ -1,4 +1,5 @@
-﻿using System.Text;
+﻿using System.Runtime.CompilerServices;
+using System.Text;
 using Microsoft.AspNetCore.Http.HttpResults;
 
 namespace LoRaWAN.PHYPayload
@@ -39,6 +40,19 @@ namespace LoRaWAN.PHYPayload
                     // Join Accept
                     macPayload = DecodeMACpayloadJoinAccept(hexMACpayload);
                     break;
+                case "40":
+                    // unconfirmed Data uplink
+                    Console.WriteLine("//unconfirmed Data uplink");
+                    macPayload = DecodeMACpayloadDataUp(hexMACpayload);
+                    break;
+                case "60":
+                    // unconfirmed Data downlink
+                case "80":
+                    // confirmed Data uplink
+                    macPayload = DecodeMACpayloadDataUp(hexMACpayload);
+                    break;
+                case "A0":
+                    // confirmed Data downlink
                 default:
                     throw new ArgumentException($"Invalid MHDR: {mhdr}");
             }
@@ -73,7 +87,39 @@ namespace LoRaWAN.PHYPayload
 
         }
 
+        public static MACpayloadData DecodeMACpayloadDataUp(string hex)
+        {
+            // Initialize objects
+            MACpayloadData payload = new MACpayloadData();
+            payload.Fhdr = new FHDR();
+            // Extract FHDR, FPort and FRMpayload from the hex string
+            payload.Fhdr.DevAddr = Utils.EndianReverseHexString(hex[..8]);
+            payload.Fhdr.FCtrlUp = new FCtrlUp(hex[8..10]);
+            payload.Fhdr.FCnt = Utils.EndianReverseHexString(hex[10..14]);
+            //dynamically sets the length of FOpts contained within the FOptsLen attribute
+            payload.Fhdr.FOpts = Utils.EndianReverseHexString(hex.Substring(14, payload.Fhdr.FCtrlUp.FOptsLen * 2));
+
+            // Calculate the length of the payload and payload.Fhdr portion
+            int fhdrLength = 14 + payload.Fhdr.FCtrlUp.FOptsLen * 2;
+            if (fhdrLength == hex.Length)
+            {
+                //FPort or FRMPayload are contained within the packet
+                payload.Fport = "";
+                payload.FRMpayload = "";
+            }
+            else
+            {
+                //FPort or FRMPayload are not contained within the packet
+                payload.Fport = hex.Substring(fhdrLength, 2);
+                //!endian revers or not?
+                payload.FRMpayload = hex.Substring(fhdrLength + 2, hex.Length - fhdrLength - 2);
+
+            }
+            return payload;
+        }
+
         // Create
+        //PhyPayload without optinal cflist
         public static PHYpayload CreatePHYpayloadJoinAccept(string netID, string devAddr, string dlSettings, string rxDelay, string appKey)
         {
             PHYpayload phyPayload = new PHYpayload();
@@ -114,6 +160,7 @@ namespace LoRaWAN.PHYPayload
             return phyPayload;
         }
 
+        //PhyPayload with optinal cflist
         public static PHYpayload CreatePHYpayloadJoinAccept(string netID, string devAddr, string dlSettings, string rxDelay, string cfList, string appKey)
         {
             PHYpayload phyPayload = new PHYpayload();
