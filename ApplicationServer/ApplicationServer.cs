@@ -16,7 +16,7 @@ namespace ApplicationServer
 
         public override void ProcessPacket(string json)
         {
-            Logger.LogWrite(json, "Join Server");
+            Logger.LogWrite(json, "Application Server");
             Console.WriteLine(json);
             JObject jObject = JObject.Parse(json);
             string messageType = jObject["MessageType"]?.Value<string>();
