@@ -17,6 +17,7 @@ IPEndPoint end = new IPEndPoint(IPAddress.Any, port);
 try
 {
     Console.WriteLine($"Push Data JSON: {Encoding.UTF8.GetString(pushData[12..])}");
+    Console.WriteLine($"Data Up JSON: {Encoding.UTF8.GetString(dataUp[12..])}");
     Console.WriteLine();
 
     // Pull Data (No Response)

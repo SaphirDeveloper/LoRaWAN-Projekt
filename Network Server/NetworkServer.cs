@@ -75,6 +75,7 @@ namespace NetworkServer
                                 dataUp.MessageType = "DataUp_unconf";
                                 dataUp.PhyPayload = PHYpayloadFactory.DecodePHYPayloadFromBase64(rxpk.Data).Hex;
                                 string json = JsonConvert.SerializeObject(dataUp);
+                                _httpClient.PostAsJsonAsync(Appsettings.ApplicationServerURL, json).Wait();
                             }
                             if (mType == "100")
                             { // confirmed Dáta uplink
@@ -82,6 +83,7 @@ namespace NetworkServer
                                 dataUp.MessageType = "DataUp_conf";
                                 dataUp.PhyPayload = PHYpayloadFactory.DecodePHYPayloadFromBase64(rxpk.Data).Hex;
                                 string json = JsonConvert.SerializeObject(dataUp);
+                                _httpClient.PostAsJsonAsync(Appsettings.ApplicationServerURL, json).Wait();
                             }
                             if (mType == "011")
                             { // unconfirmed Data downlink
@@ -89,6 +91,7 @@ namespace NetworkServer
                                 dataDown.MessageType = "DataDown_unconf";
                                 dataDown.PhyPayload = PHYpayloadFactory.DecodePHYPayloadFromBase64(rxpk.Data).Hex;
                                 string json = JsonConvert.SerializeObject(dataDown);
+                                _httpClient.PostAsJsonAsync(Appsettings.ApplicationServerURL, json).Wait();
                             }
                             if (mType == "101")
                             { // confirmed Data downlink
@@ -96,6 +99,7 @@ namespace NetworkServer
                                 dataDown.MessageType = "DataDown_conf";
                                 dataDown.PhyPayload = PHYpayloadFactory.DecodePHYPayloadFromBase64(rxpk.Data).Hex;
                                 string json = JsonConvert.SerializeObject(dataDown);
+                                _httpClient.PostAsJsonAsync(Appsettings.ApplicationServerURL, json).Wait();
                             }
                         }
                     }

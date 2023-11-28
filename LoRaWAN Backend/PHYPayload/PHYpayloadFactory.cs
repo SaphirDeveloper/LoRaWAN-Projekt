@@ -111,7 +111,6 @@ namespace LoRaWAN.PHYPayload
             {
                 //FPort or FRMPayload are not contained within the packet
                 payload.Fport = hex.Substring(fhdrLength, 2);
-                //!endian revers or not?
                 payload.FRMpayload = hex.Substring(fhdrLength + 2, hex.Length - fhdrLength - 2);
 
             }
