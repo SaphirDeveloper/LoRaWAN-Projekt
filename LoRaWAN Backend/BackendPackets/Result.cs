@@ -1,15 +1,19 @@
-﻿namespace LoRaWAN.BackendPackets
+﻿using System.Runtime.Serialization;
+using Newtonsoft.Json;
+
+namespace LoRaWAN.BackendPackets
 {
+    [DataContract]
     public class Result
     {
+        [DataMember(Name = "ResultCode")]
+        public string ResultCode { get; set; }
+        [DataMember(Name = "Description")]
+        public string Description { get; set; }
 
-        public string ResultCode;
-        public string Description;
-
-        public Result(string resultCode, string description)
+        public string ToJson()
         {
-            ResultCode = resultCode;
-            Description = description;
+            return JsonConvert.SerializeObject(this, Formatting.Indented);
         }
     }
 }

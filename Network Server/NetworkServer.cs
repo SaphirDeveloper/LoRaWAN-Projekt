@@ -30,6 +30,8 @@ namespace NetworkServer
         {
             _udpListnerThread = new Thread(AwaitUDPPacket);
             _groupEP = new IPEndPoint(IPAddress.Any, _port);
+            _udpClient = new UdpClient(_port);
+            _udpListnerThread.Start();
         }
 
 
@@ -63,7 +65,7 @@ namespace NetworkServer
                             if (mType == "000")
                             {
                                 // create join request from the data inside the rxpk.Data
-                                JoinRequest joinRequest = new JoinRequest();
+                                JoinReq joinRequest = new JoinReq();
                                 joinRequest.MessageType = "JoinReq";
                                 joinRequest.PhyPayload = PHYpayloadFactory.DecodePHYPayloadFromBase64(rxpk.Data).Hex;
                                 string json = JsonConvert.SerializeObject(joinRequest);
@@ -128,36 +130,28 @@ namespace NetworkServer
             }
         }
         
-        public override void ProcessPacket(string json)
+        public override void ProcessPacket(BackendPacket packet)
         {
-            Logger.LogWrite(json, "Network Server");
-            JObject jObject = JObject.Parse(json);
             // Check if MessageType is "JoinAns"
-            if ((bool)(jObject["MessageType"]?.Value<string>().Equals("JoinAns")))
+            if (packet.MessageType.Equals("JoinAns"))
             {
                 // Decode phyPayload from hex and create and enqueue a pull response
-                PHYpayload phyPayload = PHYpayloadFactory.DecodePHYPayloadFromHex(jObject["PhyPayload"].Value<string>());
+                JoinAns joinAns = (JoinAns)packet;
+                PHYpayload phyPayload = PHYpayloadFactory.DecodePHYPayloadFromHex(joinAns.PhyPayload);
                 PullResp pullResp = SemtechPacketFactory.CreatePullResp(SemtechPacketFactory.GenerateRandomToken(), phyPayload.Hex);
                 pullResponesQueue.Enqueue(pullResp.EncodeSemtechPacket());
             }
             else
             {
-                Console.WriteLine("Cannot process JSON...");
+                Console.WriteLine($"Cannot process packet with type '{packet.MessageType}'");
             }
         }
 
-        public override void Start()
+        public override string GetStatus()
         {
-            base.Start();
-            _udpClient = new UdpClient(_port);
-            _udpListnerThread.Start();
-        }
-
-        public override void Shutdown()
-        {
-            base.Shutdown();
-            _udpClient.Close();
-            _udpClient?.Dispose();
+            StringBuilder sb = new StringBuilder();
+            sb.AppendLine("Network Server");
+            return sb.ToString();
         }
     }
 }

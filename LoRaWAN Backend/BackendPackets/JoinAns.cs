@@ -1,14 +1,30 @@
-﻿using Newtonsoft.Json;
+﻿using System.Runtime.Serialization;
+using System.Text.Json.Serialization;
+using Newtonsoft.Json;
 
 namespace LoRaWAN.BackendPackets
 {
+    [DataContract]
+    [JsonPolymorphic(TypeDiscriminatorPropertyName = "messageType")]
+    [JsonDerivedType(typeof(JoinAns), typeDiscriminator: "JoinAns")]
     public class JoinAns : BackendPacket
     {
-        public string ReceiverNSID;
-        public string PhyPayload;
-        public Result Result;
-        public float Lifetime;
-        public KeyEnvelope AppSKey;
-        public string SessionKeyID;
+        [DataMember(Name = "ReceiverNSID")]
+        public string ReceiverNSID { get; set; }
+        [DataMember(Name = "PHYPayload")]
+        public string PhyPayload { get; set; }
+        [DataMember(Name = "Result")]
+        public Result Result { get; set; }
+        [DataMember(Name = "Lifetime")]
+        public float Lifetime { get; set; }
+        [DataMember(Name = "KeyEnvelope")]
+        public KeyEnvelope AppSKey { get; set; }
+        [DataMember(Name = "SessionKeyID")]
+        public string SessionKeyID { get; set; }
+
+        public string ToJson()
+        {
+            return JsonConvert.SerializeObject(this, Formatting.Indented);
+        }
     }
 }

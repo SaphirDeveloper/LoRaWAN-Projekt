@@ -1,7 +1,11 @@
-﻿namespace LoRaWAN.BackendPackets
+﻿using System.Runtime.Serialization;
+
+namespace LoRaWAN.BackendPackets
 {
+    [DataContract]
     public class DataDown : BackendPacket
     {
-        public string PhyPayload;
+        [DataMember(Name = "PHYPayload")]
+        public string PhyPayload { get; set; }
     }
 }

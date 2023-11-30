@@ -1,8 +1,6 @@
 using LoRaWAN;
+using LoRaWAN.HTTP;
 
-
-
-// Start Test Server
+// Start Application Server
 Server server = new ApplicationServer.ApplicationServer();
-server.Start();
-server.WaitForShutdown();
+Backend.CreateAndStartWebHost(args, server);

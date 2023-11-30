@@ -1,19 +1,26 @@
-﻿namespace LoRaWAN.BackendPackets
+﻿using System.Runtime.Serialization;
+using System.Text.Json.Serialization;
+using Newtonsoft.Json;
+
+namespace LoRaWAN.BackendPackets
 {
-    public class ErrorNotif
+    [DataContract]
+    [JsonPolymorphic(TypeDiscriminatorPropertyName = "messageType")]
+    [JsonDerivedType(typeof(ErrorNotif), typeDiscriminator: "ErrorNotif")]
+    public class ErrorNotif : BackendPacket
     {
+        [DataMember(Name = "SenderNSID")]
+        public string SenderNSID { get; set; }
+        [DataMember(Name = "ReceiverNSID")]
+        public string ReceiverNSID { get; set; }
+        [DataMember(Name = "PHYPayload")]
+        public string PhyPayload { get; set; }
+        [DataMember(Name = "Result")]
+        public Result Result { get; set; }
 
-        public string SenderNSID;
-        public string ReceiverNSID;
-        public string PhyPayload;
-        public Result Result;
-
-        public ErrorNotif(string senderNSID, string receiverNSID, string phyPayload, Result result)
+        public string ToJson()
         {
-            SenderNSID = senderNSID;
-            ReceiverNSID = receiverNSID;
-            PhyPayload = phyPayload;
-            Result = result;
+            return JsonConvert.SerializeObject(this, Formatting.Indented);
         }
     }
 }

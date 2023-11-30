@@ -1,15 +1,19 @@
-﻿namespace LoRaWAN.BackendPackets
+﻿using System.Runtime.Serialization;
+using Newtonsoft.Json;
+
+namespace LoRaWAN.BackendPackets
 {
+    [DataContract]
     public class KeyEnvelope
     {
+        [DataMember(Name = "KEKLabel")]
+        public string KekLabel { get; set; }
+        [DataMember(Name = "AESKey")]
+        public string AesKey { get; set; }
 
-        public string KekLabel;
-        public string AesKey;
-
-        public KeyEnvelope(string kekLabel, string aesKey)
+        public string ToJson()
         {
-            KekLabel = kekLabel;
-            AesKey = aesKey;
+            return JsonConvert.SerializeObject(this, Formatting.Indented);
         }
     }
 }

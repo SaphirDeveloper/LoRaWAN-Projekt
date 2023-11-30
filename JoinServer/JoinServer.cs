@@ -19,15 +19,13 @@ namespace JoinServer
 
         public JoinServer() : base(Appsettings.JoinServerURL) { }
 
-        public override void ProcessPacket(string json)
+        public override void ProcessPacket(BackendPacket packet)
         {
-            Logger.LogWrite(json, "Join Server");
-            Console.WriteLine(json);
-            JObject jObject = JObject.Parse(json);
             // Check if the MessageType is "JoinReq"
-            if ((bool)(jObject["MessageType"]?.Value<string>().Equals("JoinReq")))
+            if (packet.MessageType.Equals("JoinReq"))
             {
-                PHYpayload joinReqPhyPayload = PHYpayloadFactory.DecodePHYPayloadFromHex((string)jObject["PhyPayload"]);
+                JoinReq joinReq = (JoinReq)packet;
+                PHYpayload joinReqPhyPayload = PHYpayloadFactory.DecodePHYPayloadFromHex(joinReq.PhyPayload);
                 MACpayloadJoinRequest joinReqMacPayload = (MACpayloadJoinRequest)joinReqPhyPayload.MACpayload;
                 EndDevice device = null;
                 foreach (EndDevice d in _devices)
@@ -67,8 +65,25 @@ namespace JoinServer
             }
             else
             {
-                Console.WriteLine("Cannot process JSON...");
+                Console.WriteLine($"Cannot process packet with type '{packet.MessageType}'");
             }
+        }
+
+        public override string GetStatus()
+        {
+            StringBuilder sb = new StringBuilder();
+            sb.AppendLine("Join Server");
+            sb.AppendLine();
+            sb.AppendLine("Enddevices:");
+            foreach (EndDevice device in _devices)
+            {
+                sb.AppendLine("  DevAddr: NOT SAVED YET");
+                sb.AppendLine($"    DevEUI : {device.DevEUI}");
+                sb.AppendLine($"    AppKey : {device.AppKey}");
+                sb.AppendLine($"    AppSKey: {device.AppSKey}");
+                sb.AppendLine($"    NwkSKey: {device.NwkSKey}");
+            }
+            return sb.ToString();
         }
     }
 }
