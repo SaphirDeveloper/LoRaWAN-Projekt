@@ -89,8 +89,9 @@ namespace LoRaWAN.SemtechProtocol
             txpk.Datr = "SF12BW125";
             txpk.Codr = "4/5";
             txpk.Ipol = true;
-            txpk.Data = Convert.ToBase64String(Convert.FromHexString(hexData));
-            txpk.Size = txpk.Data.Length / 2;
+            byte[] temp = Convert.FromHexString(hexData);
+            txpk.Data = Convert.ToBase64String(temp);
+            txpk.Size = temp.Length;
             return new PullResp(token, txpk);
         }
 
