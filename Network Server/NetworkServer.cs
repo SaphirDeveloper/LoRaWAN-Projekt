@@ -151,6 +151,8 @@ namespace NetworkServer
         {
             StringBuilder sb = new StringBuilder();
             sb.AppendLine("Network Server");
+            sb.AppendLine();
+            sb.AppendLine($"Queue Length: {pullResponesQueue}");
             return sb.ToString();
         }
     }
