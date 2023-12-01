@@ -120,6 +120,7 @@ namespace NetworkServer
                     {
                         byte[] pullResp = pullResponesQueue.Dequeue();
                         _udpClient.Send(pullResp, pullResp.Length, _groupEP);
+                        Logger.LogWriteSent(BitConverter.ToString(pullResp), "Network Server");
                     }
                 }
                 else if(packet.Id == "05")
