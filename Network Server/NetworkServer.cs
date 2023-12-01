@@ -153,7 +153,7 @@ namespace NetworkServer
             StringBuilder sb = new StringBuilder();
             sb.AppendLine("Network Server");
             sb.AppendLine();
-            sb.AppendLine($"Queue Length: {pullResponesQueue}");
+            sb.AppendLine($"Queue Length: {pullResponesQueue.Count}");
             return sb.ToString();
         }
     }
