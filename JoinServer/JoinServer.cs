@@ -49,6 +49,7 @@ namespace JoinServer
                 MACpayloadJoinAccept joinAcceptMacPayload = (MACpayloadJoinAccept)joinAnsPhyPayload.MACpayload;
                 JoinAns joinAns = new JoinAns();
                 joinAns.MessageType = "JoinAns";
+                joinAns.TransactionID = joinReq.TransactionID;
                 joinAns.PhyPayload = joinAnsPhyPayload.Hex;
                 _httpClient.PostAsJsonAsync(Appsettings.NetworkServerURL, JsonConvert.SerializeObject(joinAns)).Wait();
 

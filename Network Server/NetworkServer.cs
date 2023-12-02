@@ -23,6 +23,8 @@ namespace NetworkServer
         private IPEndPoint _groupEP;
         private int _port = Appsettings.NetworkServerUDP_Port;
         private Queue<byte[]> pullResponesQueue = new Queue<byte[]>();
+        private List<JoinReq> _openJoinReqs = new List<JoinReq>();
+        private int _transactionCounter = 0;
         
 
         // Constructor
@@ -66,14 +68,17 @@ namespace NetworkServer
                             {
                                 // create join request from the data inside the rxpk.Data
                                 JoinReq joinRequest = new JoinReq();
+                                joinRequest.TransactionID = ++_transactionCounter;
                                 joinRequest.MessageType = "JoinReq";
                                 joinRequest.PhyPayload = PHYpayloadFactory.DecodePHYPayloadFromBase64(rxpk.Data).Hex;
                                 string json = JsonConvert.SerializeObject(joinRequest);
+                                _openJoinReqs.Add(joinRequest);
                                 _httpClient.PostAsJsonAsync(Appsettings.JoinServerURL, json).Wait();
                             }
                             if (mType == "010")
                             { // unconfirmed Dáta uplink
                                 DataUp dataUp = new DataUp();
+                                dataUp.TransactionID = ++_transactionCounter;
                                 dataUp.MessageType = "DataUp_unconf";
                                 dataUp.PhyPayload = PHYpayloadFactory.DecodePHYPayloadFromBase64(rxpk.Data).Hex;
                                 string json = JsonConvert.SerializeObject(dataUp);
@@ -82,6 +87,7 @@ namespace NetworkServer
                             if (mType == "100")
                             { // confirmed Dáta uplink
                                 DataUp dataUp = new DataUp();
+                                dataUp.TransactionID = ++_transactionCounter;
                                 dataUp.MessageType = "DataUp_conf";
                                 dataUp.PhyPayload = PHYpayloadFactory.DecodePHYPayloadFromBase64(rxpk.Data).Hex;
                                 string json = JsonConvert.SerializeObject(dataUp);
@@ -90,6 +96,7 @@ namespace NetworkServer
                             if (mType == "011")
                             { // unconfirmed Data downlink
                                 DataDown dataDown = new DataDown();
+                                dataDown.TransactionID = ++_transactionCounter;
                                 dataDown.MessageType = "DataDown_unconf";
                                 dataDown.PhyPayload = PHYpayloadFactory.DecodePHYPayloadFromBase64(rxpk.Data).Hex;
                                 string json = JsonConvert.SerializeObject(dataDown);
@@ -98,6 +105,7 @@ namespace NetworkServer
                             if (mType == "101")
                             { // confirmed Data downlink
                                 DataDown dataDown = new DataDown();
+                                dataDown.TransactionID = ++_transactionCounter;
                                 dataDown.MessageType = "DataDown_conf";
                                 dataDown.PhyPayload = PHYpayloadFactory.DecodePHYPayloadFromBase64(rxpk.Data).Hex;
                                 string json = JsonConvert.SerializeObject(dataDown);
@@ -138,9 +146,11 @@ namespace NetworkServer
             {
                 // Decode phyPayload from hex and create and enqueue a pull response
                 JoinAns joinAns = (JoinAns)packet;
+                JoinReq joinReq = FindJoinReqWithTransactionID(packet.TransactionID);
                 PHYpayload phyPayload = PHYpayloadFactory.DecodePHYPayloadFromHex(joinAns.PhyPayload);
                 PullResp pullResp = SemtechPacketFactory.CreatePullResp(SemtechPacketFactory.GenerateRandomToken(), phyPayload.Hex);
                 pullResponesQueue.Enqueue(pullResp.EncodeSemtechPacket());
+                _openJoinReqs.Remove(joinReq);
             }
             else
             {
@@ -148,12 +158,45 @@ namespace NetworkServer
             }
         }
 
+        public JoinReq? FindJoinReqWithTransactionID(int transactionID)
+        {
+            foreach (JoinReq packet in _openJoinReqs)
+            {
+                if (packet.TransactionID == transactionID)
+                {
+                    return packet;
+                }
+            }
+            return null;
+        }
+
         public override string GetStatus()
         {
             StringBuilder sb = new StringBuilder();
+
+            // Server Name
             sb.AppendLine("Network Server");
+
+            // Transaction Counter
             sb.AppendLine();
-            sb.AppendLine($"Queue Length: {pullResponesQueue.Count}");
+            sb.AppendLine($"Transaction Counter: {_transactionCounter}");
+
+            // UDP Queue
+            sb.AppendLine();
+            sb.AppendLine($"UDP Sent Queue: {pullResponesQueue.Count}");
+            foreach (byte[] bytes in pullResponesQueue)
+            {
+                sb.AppendLine($"[{BitConverter.ToString(bytes)}]");
+            }
+
+            // Open JoinReqs
+            sb.AppendLine();
+            sb.AppendLine($"Open Join Requests: {_openJoinReqs.Count}");
+            foreach (JoinReq joinReq in _openJoinReqs)
+            {
+                sb.AppendLine(JsonConvert.SerializeObject(joinReq));
+            }
+
             return sb.ToString();
         }
     }
