@@ -51,7 +51,9 @@ namespace JoinServer
                 joinAns.MessageType = "JoinAns";
                 joinAns.TransactionID = joinReq.TransactionID;
                 joinAns.PhyPayload = joinAnsPhyPayload.Hex;
-                _httpClient.PostAsJsonAsync(Appsettings.NetworkServerURL, JsonConvert.SerializeObject(joinAns)).Wait();
+                string json = JsonConvert.SerializeObject(joinAns);
+                Logger.LogWriteSent(json, "JoinServer", "NetworkServer");
+                _httpClient.PostAsJsonAsync(Appsettings.NetworkServerURL, json).Wait();
 
                 var keys = Cryptography.GenerateSessionKeys(
                     Utils.HexStringToByteArray(device.AppKey),

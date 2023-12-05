@@ -1,5 +1,10 @@
-﻿using System.IO;
+﻿using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
+using Newtonsoft.Json.Serialization;
+using System.IO;
 using System.Reflection;
+using System.Text;
+using System.Text.RegularExpressions;
 
 namespace LoRaWAN
 {
@@ -33,7 +38,7 @@ namespace LoRaWAN
             }
         }
 
-        public static void LogWriteSent(string logMessage, string serverName)
+        public static void LogWriteSent(string logMessage, string serverName, string destination)
         {
             // More flexibility, adds a log file inside each assembly location
             // m_exePath = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
@@ -43,7 +48,7 @@ namespace LoRaWAN
             {
                 using (StreamWriter w = File.AppendText(m_exePath + "\\" + "log.txt"))
                 {
-                    LogSent(logMessage, serverName, w);
+                    LogSent(logMessage, serverName, destination, w);
                 }
             }
             catch (Exception ex)
@@ -55,36 +60,130 @@ namespace LoRaWAN
         {
             try
             {
-                txtWriter.Write("\r\nLog Entry : ");
-                txtWriter.WriteLine("{0} {1}", DateTime.Now.ToLongTimeString(),
-                    DateTime.Now.ToLongDateString());
-                txtWriter.WriteLine("  >>Server:");
-                txtWriter.WriteLine("  >>{0}", serverName);
-                txtWriter.WriteLine("  >>Packet contains:");
-                txtWriter.WriteLine("  >>{0}", logMessage);
-                txtWriter.WriteLine("--------------------------------------------------");
+                if (IsJsonString(logMessage))
+                {
+                    var logData = JsonConvert.DeserializeObject<LogData>(logMessage);
+
+                    txtWriter.Write("\r\nLog Entry : ");
+                    txtWriter.WriteLine("{0:dd. MMMM yyyy, dddd} {1:HH:mm:ss.fff}",
+                        DateTime.Now, DateTime.Now);
+                    txtWriter.WriteLine("  >>Server: {0}", serverName);
+                    txtWriter.WriteLine("  >>received Packet contains: ");
+                    txtWriter.WriteLine("  >>Transaction ID: {0}", logData.TransactionID);
+                    txtWriter.WriteLine("  >>{0}", logMessage);
+                    txtWriter.WriteLine("--------------------------------------------------");
+                }
+                else if(IsHexString(logMessage))
+                {
+                    // Convert hex to ASCII
+                    string asciiString = HexToAscii(logMessage);
+
+                    txtWriter.Write("\r\nLog Entry : ");
+                    txtWriter.WriteLine("{0:dd. MMMM yyyy, dddd} {1:HH:mm:ss.fff}",
+                        DateTime.Now, DateTime.Now);
+                    txtWriter.WriteLine("  >>Server: {0}", serverName);
+                    txtWriter.WriteLine("  >>received Packet contains: ");
+                    txtWriter.WriteLine("  >>{0}", logMessage.Replace("-", ""));
+                    txtWriter.WriteLine("  >>{0}", asciiString);
+                    txtWriter.WriteLine("--------------------------------------------------");
+
+                }
+                else 
+                { 
+                    
+                }
+                
             }
             catch (Exception ex)
             {
             }
         }
 
-        private static void LogSent(string logMessage, string serverName, TextWriter txtWriter)
+        public static void LogSent(string logMessage, string serverName, string destination, TextWriter txtWriter)
         {
             try
             {
-                txtWriter.Write("\r\nLog Entry : ");
-                txtWriter.WriteLine("{0} {1}", DateTime.Now.ToLongTimeString(),
-                    DateTime.Now.ToLongDateString());
-                txtWriter.WriteLine("  >>Server:");
-                txtWriter.WriteLine("  >>{0}", serverName);
-                txtWriter.WriteLine("  >>Packet sent:");
-                txtWriter.WriteLine("  >>{0}", logMessage);
-                txtWriter.WriteLine("--------------------------------------------------");
+                if (IsJsonString(logMessage))
+                {
+                    var logData = JsonConvert.DeserializeObject<LogData>(logMessage);
+
+                    txtWriter.Write("\r\nLog Entry : ");
+                    txtWriter.WriteLine("{0:dd. MMMM yyyy, dddd} {1:HH:mm:ss.fff}",
+                        DateTime.Now, DateTime.Now);
+                    txtWriter.WriteLine("  >>Server: {0}", serverName);
+                    txtWriter.WriteLine("  >>Packet sent to {0}", destination);
+                    txtWriter.WriteLine("  >>Transaction ID: {0}", logData.TransactionID);
+                    txtWriter.WriteLine("  >>{0}", logMessage);
+                    txtWriter.WriteLine("--------------------------------------------------");
+                }
+                else if (IsHexString(logMessage))
+                {
+                    // Convert hex to ASCII
+                    string asciiString = HexToAscii(logMessage);
+
+                    txtWriter.Write("\r\nLog Entry : ");
+                    txtWriter.WriteLine("{0:dd. MMMM yyyy, dddd} {1:HH:mm:ss.fff}",
+                        DateTime.Now, DateTime.Now);
+                    txtWriter.WriteLine("  >>Server: {0}", serverName);
+                    txtWriter.WriteLine("  >>Packet sent to {0}", destination);
+                    txtWriter.WriteLine("  >>received Packet contains: ");
+                    txtWriter.WriteLine("  >>{0}", logMessage.Replace("-", ""));
+                    txtWriter.WriteLine("  >>{0}", asciiString);
+                    txtWriter.WriteLine("--------------------------------------------------");
+
+                }
+                else
+                {
+
+                }
             }
             catch (Exception ex)
             {
             }
+        }
+
+        private class LogData
+        {
+            public int TransactionID { get; set; }
+            // Add other properties from the logMessage JSON if needed
+        }
+
+        static bool IsHexString(string logMessage)
+        {
+            logMessage = logMessage.Replace("-", "");
+            return Regex.IsMatch(logMessage, "^[0-9A-Fa-f]+$");
+        }
+
+        static bool IsJsonString(string logMessage)
+        {
+            try
+            {
+                JToken.Parse(logMessage);
+                return true;
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
+        static string HexToAscii(string logMessage) 
+        {
+            logMessage = logMessage.Replace("-", "");
+            StringBuilder ascii = new StringBuilder();
+
+            // Finden Sie den Index des Zeichens '{' in logMessage
+            int openingCurlyBraceIndex = logMessage.IndexOf("7B");
+            if (openingCurlyBraceIndex != -1)
+            {
+                for (int i = openingCurlyBraceIndex; i < logMessage.Length; i += 2)
+                {
+                    string hs = logMessage.Substring(i, 2);
+                    ascii.Append(Convert.ToChar(Convert.ToUInt32(hs, 16)));
+                }
+            }
+            return ascii.ToString();
+
         }
     }
 }

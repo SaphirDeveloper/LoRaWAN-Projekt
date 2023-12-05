@@ -41,5 +41,17 @@ namespace LoRaWAN.BackendPackets
         {
             return JsonConvert.SerializeObject(this, Formatting.Indented);
         }
+
+        public override string ToString()
+        {
+            return GetPacketInfo();
+        }
+
+        protected virtual string GetPacketInfo()
+        {
+            return $"ProtocolVersion: {ProtocolVersion}, SenderID: {SenderID}, ReceiverID: {ReceiverID}, " +
+                   $"MessageType: {MessageType}, SenderToken: {SenderToken}, ReceiverToken: {ReceiverToken}, " +
+                   $"TransactionID: {TransactionID}";
+        }
     }
 }

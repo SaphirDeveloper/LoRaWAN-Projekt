@@ -1,4 +1,5 @@
 ﻿using System.Buffers.Text;
+using System.Linq.Expressions;
 using System.Net;
 using System.Net.Http;
 using System.Net.Sockets;
@@ -26,7 +27,7 @@ namespace NetworkServer
         private List<JoinReq> _openJoinReqs = new List<JoinReq>();
         private bool _downlinkOpen = false;
         private int _transactionCounter = 0;
-        
+
 
         // Constructor
         public NetworkServer() : base(Appsettings.NetworkServerURL)
@@ -47,7 +48,7 @@ namespace NetworkServer
                 {
                     // Await UDP packet
                     byte[] bytes = _udpClient.Receive(ref _groupEP);
-                    Logger.LogWrite(BitConverter.ToString(bytes), "Network Server");
+                    Logger.LogWrite(BitConverter.ToString(bytes), "NetworkServer");
                     SemtechPacket packet = SemtechPacketFactory.DecodeSemtechPacket(bytes);
 
                     // checking for push data packet
@@ -76,6 +77,7 @@ namespace NetworkServer
                                     joinRequest.PhyPayload = PHYpayloadFactory.DecodePHYPayloadFromBase64(rxpk.Data).Hex;
                                     string json = JsonConvert.SerializeObject(joinRequest);
                                     _openJoinReqs.Add(joinRequest);
+                                    Logger.LogWriteSent(json, "NetworkServer", "JoinServer");
                                     _httpClient.PostAsJsonAsync(Appsettings.JoinServerURL, json).Wait();
                                 }
                                 if (mType == "010")
@@ -85,6 +87,7 @@ namespace NetworkServer
                                     dataUp.MessageType = "DataUp_unconf";
                                     dataUp.PhyPayload = PHYpayloadFactory.DecodePHYPayloadFromBase64(rxpk.Data).Hex;
                                     string json = JsonConvert.SerializeObject(dataUp);
+                                    Logger.LogWriteSent(json, "NetworkServer", "ApplicationServer");
                                     _httpClient.PostAsJsonAsync(Appsettings.ApplicationServerURL, json).Wait();
                                 }
                                 if (mType == "100")
@@ -94,6 +97,7 @@ namespace NetworkServer
                                     dataUp.MessageType = "DataUp_conf";
                                     dataUp.PhyPayload = PHYpayloadFactory.DecodePHYPayloadFromBase64(rxpk.Data).Hex;
                                     string json = JsonConvert.SerializeObject(dataUp);
+                                    Logger.LogWriteSent(json, "NetworkServer", "ApplicationServer");
                                     _httpClient.PostAsJsonAsync(Appsettings.ApplicationServerURL, json).Wait();
                                 }
                                 if (mType == "011")
@@ -132,7 +136,7 @@ namespace NetworkServer
                         {
                             byte[] pullResp = pullResponesQueue.Dequeue();
                             _udpClient.Send(pullResp, pullResp.Length, _groupEP);
-                            Logger.LogWriteSent(BitConverter.ToString(pullResp), "Network Server");
+                            Logger.LogWriteSent(BitConverter.ToString(pullResp), "NetworkServer", "Gateway");
                         }
                     }
                     else if (packet.Id == "05")
@@ -145,7 +149,7 @@ namespace NetworkServer
                         {
                             byte[] pullResp = pullResponesQueue.Dequeue();
                             _udpClient.Send(pullResp, pullResp.Length, _groupEP);
-                            Logger.LogWriteSent(BitConverter.ToString(pullResp), "Network Server");
+                            Logger.LogWriteSent(BitConverter.ToString(pullResp), "NetworkServer", "Gateway");
                         }
                     }
                 }
@@ -155,7 +159,7 @@ namespace NetworkServer
                 }
             }
         }
-        
+
         public override void ProcessPacket(BackendPacket packet)
         {
             // Check if MessageType is "JoinAns"
@@ -171,6 +175,7 @@ namespace NetworkServer
                 if (_downlinkOpen)
                 {
                     _udpClient.Send(pullRespBytes, _groupEP);
+                    Logger.LogWriteSent(BitConverter.ToString(pullRespBytes), "NetworkServer", "Gateway");
                 }
                 else
                 {
