@@ -7,6 +7,16 @@
 	  <RootNamespace>JoinServer</RootNamespace>
   </PropertyGroup>
 
+  <ItemGroup>
+    <None Remove="end_devices.csv" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="end_devices.csv">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+
     <ItemGroup>
 		<ProjectReference Include="..\LoRaWAN Backend\LoRaWAN.csproj" />
 	</ItemGroup>

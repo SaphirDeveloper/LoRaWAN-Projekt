@@ -3,4 +3,4 @@ using LoRaWAN.HTTP;
 
 // Start Application Server
 Server server = new JoinServer.JoinServer();
-Backend.CreateAndStartWebHost(args, server);
+Backend.CreateWebHost(args, server).Run();

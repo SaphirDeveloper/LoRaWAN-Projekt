@@ -4,14 +4,10 @@ namespace LoRaWAN.HTTP
 {
     public class Backend
     {
-        public static void CreateAndStartWebHost(string[] args, Server server)
-        {
-            Startup.Server = server;
-            CreateWebHostBuilder(args).UseUrls(server.URL).Build().Run();
-        }
-
-        public static IWebHostBuilder CreateWebHostBuilder(string[] args) =>
+        public static IWebHost CreateWebHost(string[] args, Server server) => 
             WebHost.CreateDefaultBuilder(args)
-                .UseStartup<Startup>();
+                .ConfigureServices((services) => services.AddSingleton(server))
+                .UseStartup<Startup>()
+                .UseUrls(server.URL).Build();
     }
 }

@@ -10,7 +10,7 @@ namespace LoRaWAN.HTTP
         private readonly IWebHostEnvironment _hostingEnv;
 
         // TODO: Temp solution, find better way to give the Startup a Server object
-        internal static Server Server { get; set; }
+        internal Server Server { get; private set; }
 
         private IConfiguration Configuration { get; }
 
@@ -19,10 +19,11 @@ namespace LoRaWAN.HTTP
         /// </summary>
         /// <param name="env"></param>
         /// <param name="configuration"></param>
-        public Startup(IWebHostEnvironment env, IConfiguration configuration)
+        public Startup(IWebHostEnvironment env, IConfiguration configuration, Server server)
         {
             _hostingEnv = env;
             Configuration = configuration;
+            Server = server;
         }
 
         /// <summary>

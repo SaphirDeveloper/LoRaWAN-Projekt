@@ -14,7 +14,7 @@ using Newtonsoft.Json.Linq;
 
 namespace NetworkServer
 {
-    public class NetworkServer : Server
+    public class NetworkServer : Server, IDisposable
     {
         // Field
         private HttpClient _httpClient = new HttpClient();
@@ -135,6 +135,14 @@ namespace NetworkServer
                 {
                     // Receive and process tx ack
                     Console.WriteLine("TxAck received");
+
+                    // start dequeuing aslong pull response queue isn't empty 
+                    if (pullResponesQueue.Count > 0)
+                    {
+                        byte[] pullResp = pullResponesQueue.Dequeue();
+                        _udpClient.Send(pullResp, pullResp.Length, _groupEP);
+                        Logger.LogWriteSent(BitConverter.ToString(pullResp), "Network Server");
+                    }
                 }
             }
         }
@@ -198,6 +206,12 @@ namespace NetworkServer
             }
 
             return sb.ToString();
+        }
+
+        public void Dispose()
+        {
+            _udpClient.Close();
+            _udpClient.Dispose();
         }
     }
 }
