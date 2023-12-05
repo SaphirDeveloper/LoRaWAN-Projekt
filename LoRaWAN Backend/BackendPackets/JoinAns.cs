@@ -1,4 +1,5 @@
-﻿using System.Runtime.Serialization;
+﻿using System.Runtime;
+using System.Runtime.Serialization;
 using System.Text.Json.Serialization;
 using Newtonsoft.Json;
 
@@ -25,6 +26,13 @@ namespace LoRaWAN.BackendPackets
         public string ToJson()
         {
             return JsonConvert.SerializeObject(this, Formatting.Indented);
+        }
+
+        override
+        protected string GetPacketInfo()
+        {
+            return $"ReceiverNSID: {ReceiverNSID}\r\nPHYPayload: {PhyPayload}\r\nResult: {Result}\r\n" +
+                   $"Lifetime: {Lifetime}\r\nKeyEnvelope: {AppSKey}\r\nSessionKeyID: {SessionKeyID}";
         }
     }
 }

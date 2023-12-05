@@ -46,13 +46,13 @@ namespace LoRaWAN.PHYPayload
                     macPayload = DecodeMACpayloadDataUp(hexMACpayload);
                     break;
                 case "60":
-                    // unconfirmed Data downlink
+                // unconfirmed Data downlink
                 case "80":
                     // confirmed Data uplink
                     macPayload = DecodeMACpayloadDataUp(hexMACpayload);
                     break;
                 case "A0":
-                    // confirmed Data downlink
+                // confirmed Data downlink
                 default:
                     throw new ArgumentException($"Invalid MHDR: {mhdr}");
             }
@@ -198,6 +198,35 @@ namespace LoRaWAN.PHYPayload
             phyPayload.Hex = sb.ToString();
 
             phyPayload.Hex = "20" + BitConverter.ToString(Cryptography.AESDecrypt(Utils.HexStringToByteArray(appKey), Utils.HexStringToByteArray(macPayload.Hex + mic))).Replace("-", "");
+
+            return phyPayload;
+        }
+
+        public static PHYpayload CreatePHYpayloadDataDown(string devAddr, short fCtnDown)
+        {
+            // Initialize objects
+            PHYpayload phyPayload = new PHYpayload();
+            MACpayloadData macPayload = new MACpayloadData();
+
+            // Initialize the PHYpayload and MACpayload objects
+            phyPayload.MACpayload = macPayload;
+            // binary: 10100000 (101 = confirmed Data downlink)
+            phyPayload.MHDR = "A0";
+            macPayload.Fhdr = new FHDR();
+            macPayload.Fhdr.DevAddr = devAddr;
+            //!!!redo class FCtrlDown
+            macPayload.Fhdr.FCtrlDown = new FCtrlDown();
+            macPayload.Fhdr.FCtrlDown.Adr = false;
+            macPayload.Fhdr.FCtrlDown.Rfu = false;
+            macPayload.Fhdr.FCtrlDown.Ack = true;
+            macPayload.Fhdr.FCtrlDown.FPending = false;
+            macPayload.Fhdr.FCtrlDown.FOptsLen = 0;
+
+            macPayload.Fhdr.FCnt = Convert.ToString(fCtnDown);
+            macPayload.Fhdr.FOpts = "";
+
+
+            // Calculate MIC
 
             return phyPayload;
         }

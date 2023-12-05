@@ -30,5 +30,13 @@ namespace LoRaWAN.BackendPackets
         {
             return JsonConvert.SerializeObject(this, Formatting.Indented);
         }
+
+        override
+        protected string GetPacketInfo()
+        {
+            return $"SenderNSID: {SenderNSID}\r\nMacVersion: {MacVersion}\r\nPHYPayload: {PhyPayload}\r\n" +
+                   $"DevEUI: {DevEUI}\r\nDevAddr: {DevAddr}\r\nDLSettings: {DlSettings}\r\nRxDelay: {RxDelay}\r\n" +
+                   $"CfList: {CfList}";
+        }
     }
 }
