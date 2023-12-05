@@ -24,6 +24,7 @@ namespace NetworkServer
         private int _port = Appsettings.NetworkServerUDP_Port;
         private Queue<byte[]> pullResponesQueue = new Queue<byte[]>();
         private List<JoinReq> _openJoinReqs = new List<JoinReq>();
+        private bool _downlinkOpen = false;
         private int _transactionCounter = 0;
         
 
@@ -40,109 +41,117 @@ namespace NetworkServer
         // Methods
         private void AwaitUDPPacket()
         {
-            while (true)
+            while (_udpClient.Client != null)
             {
-                // Await UDP packet
-                byte[] bytes = _udpClient.Receive(ref _groupEP);
-                Logger.LogWrite(BitConverter.ToString(bytes), "Network Server");
-                SemtechPacket packet = SemtechPacketFactory.DecodeSemtechPacket(bytes);
-                
-                // checking for push data packet
-                if (packet.Id == "00")
+                try
                 {
-                    PushData pushData = (PushData)packet;
-                    byte[] ack = pushData.CreatePushAck().EncodeSemtechPacket();
+                    // Await UDP packet
+                    byte[] bytes = _udpClient.Receive(ref _groupEP);
+                    Logger.LogWrite(BitConverter.ToString(bytes), "Network Server");
+                    SemtechPacket packet = SemtechPacketFactory.DecodeSemtechPacket(bytes);
 
-                    Console.WriteLine(BitConverter.ToString(ack));
-                    _udpClient.Send(ack, ack.Length, _groupEP);
-
-                    if (pushData.rxpks != null)
+                    // checking for push data packet
+                    if (packet.Id == "00")
                     {
-                        // Process rxpk in the push data packet
-                        foreach (Rxpk rxpk in pushData.rxpks)
-                        {
-                            byte[] tmp = Convert.FromBase64String(rxpk.Data);
-                            string mType = Convert.ToString(tmp[0], 2).PadLeft(8, '0').Substring(0, 3);
+                        PushData pushData = (PushData)packet;
+                        byte[] ack = pushData.CreatePushAck().EncodeSemtechPacket();
 
-                            if (mType == "000")
+                        Console.WriteLine(BitConverter.ToString(ack));
+                        _udpClient.Send(ack, ack.Length, _groupEP);
+
+                        if (pushData.rxpks != null)
+                        {
+                            // Process rxpk in the push data packet
+                            foreach (Rxpk rxpk in pushData.rxpks)
                             {
-                                // create join request from the data inside the rxpk.Data
-                                JoinReq joinRequest = new JoinReq();
-                                joinRequest.TransactionID = ++_transactionCounter;
-                                joinRequest.MessageType = "JoinReq";
-                                joinRequest.PhyPayload = PHYpayloadFactory.DecodePHYPayloadFromBase64(rxpk.Data).Hex;
-                                string json = JsonConvert.SerializeObject(joinRequest);
-                                _openJoinReqs.Add(joinRequest);
-                                _httpClient.PostAsJsonAsync(Appsettings.JoinServerURL, json).Wait();
-                            }
-                            if (mType == "010")
-                            { // unconfirmed Dáta uplink
-                                DataUp dataUp = new DataUp();
-                                dataUp.TransactionID = ++_transactionCounter;
-                                dataUp.MessageType = "DataUp_unconf";
-                                dataUp.PhyPayload = PHYpayloadFactory.DecodePHYPayloadFromBase64(rxpk.Data).Hex;
-                                string json = JsonConvert.SerializeObject(dataUp);
-                                _httpClient.PostAsJsonAsync(Appsettings.ApplicationServerURL, json).Wait();
-                            }
-                            if (mType == "100")
-                            { // confirmed Dáta uplink
-                                DataUp dataUp = new DataUp();
-                                dataUp.TransactionID = ++_transactionCounter;
-                                dataUp.MessageType = "DataUp_conf";
-                                dataUp.PhyPayload = PHYpayloadFactory.DecodePHYPayloadFromBase64(rxpk.Data).Hex;
-                                string json = JsonConvert.SerializeObject(dataUp);
-                                _httpClient.PostAsJsonAsync(Appsettings.ApplicationServerURL, json).Wait();
-                            }
-                            if (mType == "011")
-                            { // unconfirmed Data downlink
-                                DataDown dataDown = new DataDown();
-                                dataDown.TransactionID = ++_transactionCounter;
-                                dataDown.MessageType = "DataDown_unconf";
-                                dataDown.PhyPayload = PHYpayloadFactory.DecodePHYPayloadFromBase64(rxpk.Data).Hex;
-                                string json = JsonConvert.SerializeObject(dataDown);
-                                _httpClient.PostAsJsonAsync(Appsettings.ApplicationServerURL, json).Wait();
-                            }
-                            if (mType == "101")
-                            { // confirmed Data downlink
-                                DataDown dataDown = new DataDown();
-                                dataDown.TransactionID = ++_transactionCounter;
-                                dataDown.MessageType = "DataDown_conf";
-                                dataDown.PhyPayload = PHYpayloadFactory.DecodePHYPayloadFromBase64(rxpk.Data).Hex;
-                                string json = JsonConvert.SerializeObject(dataDown);
-                                _httpClient.PostAsJsonAsync(Appsettings.ApplicationServerURL, json).Wait();
+                                byte[] tmp = Convert.FromBase64String(rxpk.Data);
+                                string mType = Convert.ToString(tmp[0], 2).PadLeft(8, '0').Substring(0, 3);
+
+                                if (mType == "000")
+                                {
+                                    // create join request from the data inside the rxpk.Data
+                                    JoinReq joinRequest = new JoinReq();
+                                    joinRequest.TransactionID = ++_transactionCounter;
+                                    joinRequest.MessageType = "JoinReq";
+                                    joinRequest.PhyPayload = PHYpayloadFactory.DecodePHYPayloadFromBase64(rxpk.Data).Hex;
+                                    string json = JsonConvert.SerializeObject(joinRequest);
+                                    _openJoinReqs.Add(joinRequest);
+                                    _httpClient.PostAsJsonAsync(Appsettings.JoinServerURL, json).Wait();
+                                }
+                                if (mType == "010")
+                                { // unconfirmed Dáta uplink
+                                    DataUp dataUp = new DataUp();
+                                    dataUp.TransactionID = ++_transactionCounter;
+                                    dataUp.MessageType = "DataUp_unconf";
+                                    dataUp.PhyPayload = PHYpayloadFactory.DecodePHYPayloadFromBase64(rxpk.Data).Hex;
+                                    string json = JsonConvert.SerializeObject(dataUp);
+                                    _httpClient.PostAsJsonAsync(Appsettings.ApplicationServerURL, json).Wait();
+                                }
+                                if (mType == "100")
+                                { // confirmed Dáta uplink
+                                    DataUp dataUp = new DataUp();
+                                    dataUp.TransactionID = ++_transactionCounter;
+                                    dataUp.MessageType = "DataUp_conf";
+                                    dataUp.PhyPayload = PHYpayloadFactory.DecodePHYPayloadFromBase64(rxpk.Data).Hex;
+                                    string json = JsonConvert.SerializeObject(dataUp);
+                                    _httpClient.PostAsJsonAsync(Appsettings.ApplicationServerURL, json).Wait();
+                                }
+                                if (mType == "011")
+                                { // unconfirmed Data downlink
+                                    DataDown dataDown = new DataDown();
+                                    dataDown.TransactionID = ++_transactionCounter;
+                                    dataDown.MessageType = "DataDown_unconf";
+                                    dataDown.PhyPayload = PHYpayloadFactory.DecodePHYPayloadFromBase64(rxpk.Data).Hex;
+                                    string json = JsonConvert.SerializeObject(dataDown);
+                                    _httpClient.PostAsJsonAsync(Appsettings.ApplicationServerURL, json).Wait();
+                                }
+                                if (mType == "101")
+                                { // confirmed Data downlink
+                                    DataDown dataDown = new DataDown();
+                                    dataDown.TransactionID = ++_transactionCounter;
+                                    dataDown.MessageType = "DataDown_conf";
+                                    dataDown.PhyPayload = PHYpayloadFactory.DecodePHYPayloadFromBase64(rxpk.Data).Hex;
+                                    string json = JsonConvert.SerializeObject(dataDown);
+                                    _httpClient.PostAsJsonAsync(Appsettings.ApplicationServerURL, json).Wait();
+                                }
                             }
                         }
                     }
-                }
-                // checking for pull data packet
-                else if (packet.Id == "02")
-                {
-                    // Create and send pull acknowledgment
-                    PullData pullData = (PullData)packet;
-                    byte[] ack = pullData.CreatePullAck().EncodeSemtechPacket();
-                    Console.WriteLine(BitConverter.ToString(ack));
-                    _udpClient.Send(ack, ack.Length, _groupEP);
-
-                    // start dequeuing aslong pull response queue isn't empty 
-                    if (pullResponesQueue.Count > 0)
+                    // checking for pull data packet
+                    else if (packet.Id == "02")
                     {
-                        byte[] pullResp = pullResponesQueue.Dequeue();
-                        _udpClient.Send(pullResp, pullResp.Length, _groupEP);
-                        Logger.LogWriteSent(BitConverter.ToString(pullResp), "Network Server");
+                        // Create and send pull acknowledgment
+                        PullData pullData = (PullData)packet;
+                        byte[] ack = pullData.CreatePullAck().EncodeSemtechPacket();
+                        Console.WriteLine(BitConverter.ToString(ack));
+                        _udpClient.Send(ack, ack.Length, _groupEP);
+                        _downlinkOpen = true;
+
+                        // start dequeuing aslong pull response queue isn't empty 
+                        if (pullResponesQueue.Count > 0)
+                        {
+                            byte[] pullResp = pullResponesQueue.Dequeue();
+                            _udpClient.Send(pullResp, pullResp.Length, _groupEP);
+                            Logger.LogWriteSent(BitConverter.ToString(pullResp), "Network Server");
+                        }
+                    }
+                    else if (packet.Id == "05")
+                    {
+                        // Receive and process tx ack
+                        Console.WriteLine("TxAck received");
+
+                        // start dequeuing aslong pull response queue isn't empty 
+                        if (pullResponesQueue.Count > 0)
+                        {
+                            byte[] pullResp = pullResponesQueue.Dequeue();
+                            _udpClient.Send(pullResp, pullResp.Length, _groupEP);
+                            Logger.LogWriteSent(BitConverter.ToString(pullResp), "Network Server");
+                        }
                     }
                 }
-                else if(packet.Id == "05")
+                catch (Exception)
                 {
-                    // Receive and process tx ack
-                    Console.WriteLine("TxAck received");
-
-                    // start dequeuing aslong pull response queue isn't empty 
-                    if (pullResponesQueue.Count > 0)
-                    {
-                        byte[] pullResp = pullResponesQueue.Dequeue();
-                        _udpClient.Send(pullResp, pullResp.Length, _groupEP);
-                        Logger.LogWriteSent(BitConverter.ToString(pullResp), "Network Server");
-                    }
+                    // Ignore Exception
                 }
             }
         }
@@ -157,7 +166,17 @@ namespace NetworkServer
                 JoinReq joinReq = FindJoinReqWithTransactionID(packet.TransactionID);
                 PHYpayload phyPayload = PHYpayloadFactory.DecodePHYPayloadFromHex(joinAns.PhyPayload);
                 PullResp pullResp = SemtechPacketFactory.CreatePullResp(SemtechPacketFactory.GenerateRandomToken(), phyPayload.Hex);
-                pullResponesQueue.Enqueue(pullResp.EncodeSemtechPacket());
+                byte[] pullRespBytes = pullResp.EncodeSemtechPacket();
+
+                if (_downlinkOpen)
+                {
+                    _udpClient.Send(pullRespBytes, _groupEP);
+                }
+                else
+                {
+                    pullResponesQueue.Enqueue(pullRespBytes);
+                }
+                
                 _openJoinReqs.Remove(joinReq);
             }
             else
