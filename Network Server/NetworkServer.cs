@@ -174,14 +174,14 @@ namespace NetworkServer
 
                 if (_downlinkOpen)
                 {
-                    _udpClient.Send(pullRespBytes, _groupEP);
+                    _udpClient.Send(pullRespBytes, pullRespBytes.Length, _groupEP);
                     Logger.LogWriteSent(BitConverter.ToString(pullRespBytes), "NetworkServer", "Gateway");
                 }
                 else
                 {
                     pullResponesQueue.Enqueue(pullRespBytes);
                 }
-                
+
                 _openJoinReqs.Remove(joinReq);
             }
             else
