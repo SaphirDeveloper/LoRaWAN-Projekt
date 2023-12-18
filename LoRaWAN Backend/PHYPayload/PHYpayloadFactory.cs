@@ -121,51 +121,21 @@ namespace LoRaWAN.PHYPayload
         //PhyPayload without optinal cflist
         public static PHYpayload CreatePHYpayloadJoinAccept(string netID, string devAddr, string dlSettings, string rxDelay, string appKey)
         {
-            PHYpayload phyPayload = new PHYpayload();
-            MACpayloadJoinAccept macPayload = new MACpayloadJoinAccept();
-
-            string appNonce = Utils.GenerateUniqueRandomNumber(new byte[3]);
-
-            // Initialize the PHYpayload and MACpayload objects
-            phyPayload.MACpayload = macPayload;
-            // binary: 00100000 (001 = JoinAns) 
-            phyPayload.MHDR = "20";
-            macPayload.AppNonce = appNonce;
-            macPayload.NetID = netID;
-            macPayload.DevAddr = devAddr;
-            macPayload.DLSettings = dlSettings;
-            macPayload.RxDelay = rxDelay;
-
-            // Build the hexadecimal representation of the payload
-            StringBuilder sb = new StringBuilder();
-            sb.Append(Utils.EndianReverseHexString(appNonce));
-            sb.Append(Utils.EndianReverseHexString(netID));
-            sb.Append(Utils.EndianReverseHexString(devAddr));
-            sb.Append(Utils.EndianReverseHexString(dlSettings));
-            sb.Append(Utils.EndianReverseHexString(rxDelay));
-            macPayload.Hex = sb.ToString();
-            sb.Insert(0, phyPayload.MHDR);
-
-            // Calculate MIC
-            byte[] cmac = Cryptography.AESCMAC(Utils.HexStringToByteArray(appKey), Utils.HexStringToByteArray(phyPayload.MHDR + macPayload.Hex));
-            string mic = BitConverter.ToString(cmac[0..4]).Replace("-", "");
-            phyPayload.MIC = mic;
-
-            sb.Append(mic);
-            phyPayload.Hex = sb.ToString();
-
-            phyPayload.Hex = "20" + BitConverter.ToString(Cryptography.AESDecrypt(Utils.HexStringToByteArray(appKey), Utils.HexStringToByteArray(macPayload.Hex + mic))).Replace("-", "");
-
-            return phyPayload;
+            return CreatePHYpayloadJoinAccept(netID, devAddr, dlSettings, rxDelay, "", appKey);
         }
 
         //PhyPayload with optinal cflist
         public static PHYpayload CreatePHYpayloadJoinAccept(string netID, string devAddr, string dlSettings, string rxDelay, string cfList, string appKey)
         {
+            string appNonce = Utils.GenerateUniqueRandomNumber(new byte[3]);
+            return CreatePHYpayloadJoinAccept(appNonce, netID, devAddr, dlSettings, rxDelay, cfList, appKey);
+        }
+
+        //PhyPayload with optinal cflist and appNonce
+        public static PHYpayload CreatePHYpayloadJoinAccept(string appNonce, string netID, string devAddr, string dlSettings, string rxDelay, string cfList, string appKey)
+        {
             PHYpayload phyPayload = new PHYpayload();
             MACpayloadJoinAccept macPayload = new MACpayloadJoinAccept();
-
-            string appNonce = Utils.GenerateUniqueRandomNumber(new byte[3]);
 
             // Initialize the PHYpayload and MACpayload objects
             phyPayload.MACpayload = macPayload;
@@ -197,6 +167,7 @@ namespace LoRaWAN.PHYPayload
             sb.Append(mic);
             phyPayload.Hex = sb.ToString();
 
+            // Encryption
             phyPayload.Hex = "20" + BitConverter.ToString(Cryptography.AESDecrypt(Utils.HexStringToByteArray(appKey), Utils.HexStringToByteArray(macPayload.Hex + mic))).Replace("-", "");
 
             return phyPayload;

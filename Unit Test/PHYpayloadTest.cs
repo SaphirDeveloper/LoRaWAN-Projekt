@@ -1,4 +1,5 @@
-﻿using LoRaWAN.PHYPayload;
+﻿using LoRaWAN;
+using LoRaWAN.PHYPayload;
 
 namespace Unit_Test
 {
@@ -93,6 +94,26 @@ namespace Unit_Test
             Assert.AreEqual("94", joinAccept.DLSettings.ToUpper());
             Assert.AreEqual("35", joinAccept.RxDelay.ToUpper());
             Assert.AreEqual("", joinAccept.CFList.ToUpper());
+        }
+
+        [TestMethod]
+        public void JoinAcceptCreate()
+        {
+            PHYpayload exampleEncryptedJoinAccept = PHYpayloadFactory.DecodePHYPayloadFromBase64("ILbqJeHi2DjxnM1avwwg0cuod6OHrlHhC8Wkx4geNZ/m");
+
+            // Decrypt example join accept
+            byte[] temp = Utils.HexStringToByteArray(exampleEncryptedJoinAccept.Hex[2..]);
+            temp = Cryptography.AESEncrypt(Utils.HexStringToByteArray("03D3C29C7AAE3F87483D60AB33F2EA86"), temp);
+            PHYpayload exampleDecryptedJoinAccept = PHYpayloadFactory.DecodePHYPayloadFromHex("20" + BitConverter.ToString(temp).Replace("-", ""));
+
+            // Get join accept mac payload
+            MACpayloadJoinAccept joinAccept = (MACpayloadJoinAccept)exampleDecryptedJoinAccept.MACpayload;
+
+            // Create custom join accept (encrypted)
+            PHYpayload actualEncryptedJoinAccept = PHYpayloadFactory.CreatePHYpayloadJoinAccept(joinAccept.AppNonce, joinAccept.NetID, joinAccept.DevAddr, joinAccept.DLSettings, joinAccept.RxDelay, joinAccept.CFList, "03D3C29C7AAE3F87483D60AB33F2EA86");
+
+            // Test Hex
+            Assert.AreEqual(exampleEncryptedJoinAccept.Hex, actualEncryptedJoinAccept.Hex);
         }
     }
 }
