@@ -78,10 +78,10 @@ namespace LoRaWAN.SemtechProtocol
         }
 
         // Create
-        public static PullResp CreatePullResp(string token, string hexData, float freq, string datr, string codr)
+        public static PullResp CreatePullResp(string token, string hexData, float freq, string datr, string codr, int tmst)
         {
             Txpk txpk = new Txpk();
-            txpk.Imme = true;
+            txpk.Tmst = tmst;
             txpk.Rfch = 0;
             txpk.Powe = 14;
             txpk.Freq = freq;

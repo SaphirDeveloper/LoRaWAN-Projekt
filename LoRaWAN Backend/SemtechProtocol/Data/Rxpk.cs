@@ -17,12 +17,12 @@
         public int Size;
         public string Data;
 
-        public Rxpk(string time, int tmms, long tmst, float freq, int chan, int rfch, int stat, string modu,
+        public Rxpk(string time, long tmms, int tmst, float freq, int chan, int rfch, int stat, string modu,
             string datr, string codr, int rssi, float lsnr, int size, string data)
         {
             Time = time;
-            Tmst = tmms;
-            Tmms = tmst;
+            Tmst = tmst;
+            Tmms = tmms;
             Freq = freq;
             Chan = chan;
             Rfch = rfch;

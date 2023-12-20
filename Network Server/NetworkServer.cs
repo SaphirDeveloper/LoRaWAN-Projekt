@@ -18,6 +18,7 @@ namespace NetworkServer
     public class NetworkServer : Server, IDisposable
     {
         // Field
+        private static readonly int JOIN_ACCEPT_DELAY1 = 5000000; // 5s
         private HttpClient _httpClient = new HttpClient();
         private Thread _udpListnerThread;
         private UdpClient _udpClient;
@@ -176,7 +177,7 @@ namespace NetworkServer
                 JoinAns joinAns = (JoinAns)packet;
                 JoinReqAndRxpk j = FindJoinReqWithTransactionID(packet.TransactionID);
                 PHYpayload phyPayload = PHYpayloadFactory.DecodePHYPayloadFromHex(joinAns.PhyPayload);
-                PullResp pullResp = SemtechPacketFactory.CreatePullResp(SemtechPacketFactory.GenerateRandomToken(), phyPayload.Hex, j.Rxpk.Freq, j.Rxpk.Datr, j.Rxpk.Codr);
+                PullResp pullResp = SemtechPacketFactory.CreatePullResp(SemtechPacketFactory.GenerateRandomToken(), phyPayload.Hex, j.Rxpk.Freq, j.Rxpk.Datr, j.Rxpk.Codr, j.Rxpk.Tmst + JOIN_ACCEPT_DELAY1);
                 byte[] pullRespBytes = pullResp.EncodeSemtechPacket();
 
                 if (_downlinkOpen)
