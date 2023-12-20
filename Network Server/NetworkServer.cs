@@ -24,7 +24,7 @@ namespace NetworkServer
         private IPEndPoint _groupEP;
         private int _port = Appsettings.NetworkServerUDP_Port;
         private Queue<byte[]> pullResponesQueue = new Queue<byte[]>();
-        private List<JoinReq> _openJoinReqs = new List<JoinReq>();
+        private List<JoinReqAndRxpk> _openJoinReqs = new List<JoinReqAndRxpk>();
         private bool _downlinkOpen = false;
         private int _pullDataPort = 0;
         private int _transactionCounter = 0;
@@ -77,7 +77,10 @@ namespace NetworkServer
                                     joinRequest.MessageType = "JoinReq";
                                     joinRequest.PhyPayload = PHYpayloadFactory.DecodePHYPayloadFromBase64(rxpk.Data).Hex;
                                     string json = JsonConvert.SerializeObject(joinRequest);
-                                    _openJoinReqs.Add(joinRequest);
+                                    JoinReqAndRxpk j = new JoinReqAndRxpk();
+                                    j.JoinReq = joinRequest;
+                                    j.Rxpk = rxpk;
+                                    _openJoinReqs.Add(j);
                                     Logger.LogWriteSent(json, "NetworkServer", "JoinServer");
                                     _httpClient.PostAsJsonAsync(Appsettings.JoinServerURL, json).Wait();
                                 }
@@ -171,9 +174,9 @@ namespace NetworkServer
             {
                 // Decode phyPayload from hex and create and enqueue a pull response
                 JoinAns joinAns = (JoinAns)packet;
-                JoinReq joinReq = FindJoinReqWithTransactionID(packet.TransactionID);
+                JoinReqAndRxpk j = FindJoinReqWithTransactionID(packet.TransactionID);
                 PHYpayload phyPayload = PHYpayloadFactory.DecodePHYPayloadFromHex(joinAns.PhyPayload);
-                PullResp pullResp = SemtechPacketFactory.CreatePullResp(SemtechPacketFactory.GenerateRandomToken(), phyPayload.Hex);
+                PullResp pullResp = SemtechPacketFactory.CreatePullResp(SemtechPacketFactory.GenerateRandomToken(), phyPayload.Hex, j.Rxpk.Freq, j.Rxpk.Datr, j.Rxpk.Codr);
                 byte[] pullRespBytes = pullResp.EncodeSemtechPacket();
 
                 if (_downlinkOpen)
@@ -186,8 +189,6 @@ namespace NetworkServer
                 {
                     pullResponesQueue.Enqueue(pullRespBytes);
                 }
-
-                _openJoinReqs.Remove(joinReq);
             }
             else
             {
@@ -195,13 +196,13 @@ namespace NetworkServer
             }
         }
 
-        public JoinReq? FindJoinReqWithTransactionID(int transactionID)
+        private JoinReqAndRxpk? FindJoinReqWithTransactionID(int transactionID)
         {
-            foreach (JoinReq packet in _openJoinReqs)
+            foreach (JoinReqAndRxpk j in _openJoinReqs)
             {
-                if (packet.TransactionID == transactionID)
+                if (j.JoinReq.TransactionID == transactionID)
                 {
-                    return packet;
+                    return j;
                 }
             }
             return null;
@@ -226,14 +227,6 @@ namespace NetworkServer
                 sb.AppendLine($"[{BitConverter.ToString(bytes)}]");
             }
 
-            // Open JoinReqs
-            sb.AppendLine();
-            sb.AppendLine($"Open Join Requests: {_openJoinReqs.Count}");
-            foreach (JoinReq joinReq in _openJoinReqs)
-            {
-                sb.AppendLine(JsonConvert.SerializeObject(joinReq));
-            }
-
             return sb.ToString();
         }
 
@@ -241,6 +234,14 @@ namespace NetworkServer
         {
             _udpClient.Close();
             _udpClient.Dispose();
+        }
+
+
+
+        private class JoinReqAndRxpk
+        {
+            public JoinReq JoinReq { get; set; }
+            public Rxpk Rxpk { get; set; }
         }
     }
 }

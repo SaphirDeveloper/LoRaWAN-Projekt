@@ -78,16 +78,16 @@ namespace LoRaWAN.SemtechProtocol
         }
 
         // Create
-        public static PullResp CreatePullResp(string token, string hexData)
+        public static PullResp CreatePullResp(string token, string hexData, float freq, string datr, string codr)
         {
             Txpk txpk = new Txpk();
             txpk.Imme = true;
             txpk.Rfch = 0;
             txpk.Powe = 14;
-            txpk.Freq = 868.5f;
+            txpk.Freq = freq;
             txpk.Modu = "LORA";
-            txpk.Datr = "SF8BW125";
-            txpk.Codr = "4/5";
+            txpk.Datr = datr;
+            txpk.Codr = codr;
             txpk.Ipol = true;
             byte[] temp = Convert.FromHexString(hexData);
             txpk.Data = Convert.ToBase64String(temp);
