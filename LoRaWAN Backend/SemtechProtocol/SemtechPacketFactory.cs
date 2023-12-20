@@ -84,9 +84,9 @@ namespace LoRaWAN.SemtechProtocol
             txpk.Imme = true;
             txpk.Rfch = 0;
             txpk.Powe = 14;
-            txpk.Freq = 867.5f;
+            txpk.Freq = 868.5f;
             txpk.Modu = "LORA";
-            txpk.Datr = "SF12BW125";
+            txpk.Datr = "SF8BW125";
             txpk.Codr = "4/5";
             txpk.Ipol = true;
             byte[] temp = Convert.FromHexString(hexData);
