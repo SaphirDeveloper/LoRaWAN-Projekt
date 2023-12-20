@@ -26,6 +26,7 @@ namespace NetworkServer
         private Queue<byte[]> pullResponesQueue = new Queue<byte[]>();
         private List<JoinReq> _openJoinReqs = new List<JoinReq>();
         private bool _downlinkOpen = false;
+        private int _pullDataPort = 0;
         private int _transactionCounter = 0;
 
 
@@ -130,11 +131,13 @@ namespace NetworkServer
                         Console.WriteLine(BitConverter.ToString(ack));
                         _udpClient.Send(ack, ack.Length, _groupEP);
                         _downlinkOpen = true;
+                        _pullDataPort = _groupEP.Port;
 
                         // start dequeuing aslong pull response queue isn't empty 
                         if (pullResponesQueue.Count > 0)
                         {
                             byte[] pullResp = pullResponesQueue.Dequeue();
+                            _groupEP.Port = _pullDataPort;
                             _udpClient.Send(pullResp, pullResp.Length, _groupEP);
                             Logger.LogWriteSent(BitConverter.ToString(pullResp), "NetworkServer", "Gateway");
                         }
@@ -148,6 +151,7 @@ namespace NetworkServer
                         if (pullResponesQueue.Count > 0)
                         {
                             byte[] pullResp = pullResponesQueue.Dequeue();
+                            _groupEP.Port = _pullDataPort;
                             _udpClient.Send(pullResp, pullResp.Length, _groupEP);
                             Logger.LogWriteSent(BitConverter.ToString(pullResp), "NetworkServer", "Gateway");
                         }
@@ -174,6 +178,7 @@ namespace NetworkServer
 
                 if (_downlinkOpen)
                 {
+                    _groupEP.Port = _pullDataPort;
                     _udpClient.Send(pullRespBytes, pullRespBytes.Length, _groupEP);
                     Logger.LogWriteSent(BitConverter.ToString(pullRespBytes), "NetworkServer", "Gateway");
                 }
