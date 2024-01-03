@@ -76,7 +76,10 @@ namespace NetworkServer
                                     JoinReq joinRequest = new JoinReq();
                                     joinRequest.TransactionID = ++_transactionCounter;
                                     joinRequest.MessageType = "JoinReq";
-                                    joinRequest.PhyPayload = PHYpayloadFactory.DecodePHYPayloadFromBase64(rxpk.Data).Hex;
+                                    PHYpayload phyPayload = PHYpayloadFactory.DecodePHYPayloadFromBase64(rxpk.Data);
+                                    MACpayloadJoinRequest macPayload = (MACpayloadJoinRequest)phyPayload.MACpayload;
+                                    joinRequest.PhyPayload = phyPayload.Hex;
+                                    joinRequest.DevEUI = macPayload.DevEUI;
                                     string json = JsonConvert.SerializeObject(joinRequest);
                                     JoinReqAndRxpk j = new JoinReqAndRxpk();
                                     j.JoinReq = joinRequest;

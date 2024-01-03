@@ -23,17 +23,9 @@ namespace LoRaWAN.BackendPackets
     public class BackendPacket
     {
         [DataMember(Name = "ProtocolVersion")]
-        public string ProtocolVersion { get; set; }
-        [DataMember(Name = "SenderID")]
-        public string SenderID { get; set; }
-        [DataMember(Name = "ReceiverID")]
-        public string ReceiverID { get; set; }
+        public string ProtocolVersion { get; set; } = "2";
         [DataMember(Name = "MessageType")]
         public string MessageType { get; set; }
-        [DataMember(Name = "SenderToken")]
-        public string SenderToken { get; set; }
-        [DataMember(Name = "ReceiverToken")]
-        public string ReceiverToken { get; set; }
         [DataMember(Name = "TransactionID")]
         public int TransactionID { get; set; }
 
@@ -49,8 +41,8 @@ namespace LoRaWAN.BackendPackets
 
         protected virtual string GetPacketInfo()
         {
-            return $"ProtocolVersion: {ProtocolVersion}, SenderID: {SenderID}, ReceiverID: {ReceiverID}, " +
-                   $"MessageType: {MessageType}, SenderToken: {SenderToken}, ReceiverToken: {ReceiverToken}, " +
+            return $"ProtocolVersion: {ProtocolVersion}, " +
+                   $"MessageType: {MessageType}, " +
                    $"TransactionID: {TransactionID}";
         }
     }

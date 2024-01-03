@@ -9,10 +9,6 @@ namespace LoRaWAN.BackendPackets
     [JsonDerivedType(typeof(ErrorNotif), typeDiscriminator: "ErrorNotif")]
     public class ErrorNotif : BackendPacket
     {
-        [DataMember(Name = "SenderNSID")]
-        public string SenderNSID { get; set; }
-        [DataMember(Name = "ReceiverNSID")]
-        public string ReceiverNSID { get; set; }
         [DataMember(Name = "PHYPayload")]
         public string PhyPayload { get; set; }
         [DataMember(Name = "Result")]

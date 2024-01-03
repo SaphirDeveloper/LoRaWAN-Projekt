@@ -9,8 +9,6 @@ namespace LoRaWAN.BackendPackets
     [JsonDerivedType(typeof(AppSKeyReq), typeDiscriminator: "AppSKeyReq")]
     public class AppSKeyReq : BackendPacket
     {
-        [DataMember(Name = "SenderNSID")]
-        public string SenderNSID { get; set; }
         [DataMember(Name = "DevEUI")]
         public string DevEUI { get; set; }
         [DataMember(Name = "DevAddr")]
