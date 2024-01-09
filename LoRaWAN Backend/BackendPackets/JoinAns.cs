@@ -15,7 +15,10 @@ namespace LoRaWAN.BackendPackets
         [DataMember(Name = "Result")]
         [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
         public Result Result { get; set; }
-        [DataMember(Name = "KeyEnvelope")]
+        [DataMember(Name = "NwkSKey")]
+        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+        public KeyEnvelope NwkSKey { get; set; }
+        [DataMember(Name = "AppSKey")]
         [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
         public KeyEnvelope AppSKey { get; set; }
         [DataMember(Name = "SessionKeyID")]

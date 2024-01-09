@@ -1,14 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Text;
 using LoRaWAN;
 using LoRaWAN.BackendPackets;
 using LoRaWAN.PHYPayload;
-using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 
 namespace JoinServer
 {
@@ -24,9 +18,19 @@ namespace JoinServer
             // Check if the MessageType is "JoinReq"
             if (packet.MessageType.Equals("JoinReq"))
             {
+                // Decode Join Request
                 JoinReq joinReq = (JoinReq)packet;
                 PHYpayload joinReqPhyPayload = PHYpayloadFactory.DecodePHYPayloadFromHex(joinReq.PhyPayload);
                 MACpayloadJoinRequest joinReqMacPayload = (MACpayloadJoinRequest)joinReqPhyPayload.MACpayload;
+
+                // Create Join Answer
+                JoinAns joinAns = new JoinAns();
+                joinAns.MessageType = "JoinAns";
+                joinAns.TransactionID = joinReq.TransactionID;
+                joinAns.Result = new Result();
+                string json;
+
+                // Find device with DevEUI
                 EndDevice device = null;
                 foreach (EndDevice d in _devices)
                 {
@@ -40,6 +44,12 @@ namespace JoinServer
                 if (device == null)
                 {
                     // Device not found
+                    joinAns.Result.ResultCode = Result.RESULT_CODE_UNKNOWN_DEVEUI;
+
+                    // Send Join Answer
+                    json = JsonConvert.SerializeObject(joinAns);
+                    Logger.LogWriteSent(json, "JoinServer", "NetworkServer");
+                    _httpClient.PostAsJsonAsync(Appsettings.NetworkServerURL, json).Wait();
                     return;
                 }
 
@@ -47,14 +57,9 @@ namespace JoinServer
                 // If it's a JoinReq, create a JoinAccept PHYpayload and send a JoinAns to the Network Server
                 PHYpayload joinAnsPhyPayload = PHYpayloadFactory.CreatePHYpayloadJoinAccept("000000", "00000000", "94", "08", device.AppKey);
                 MACpayloadJoinAccept joinAcceptMacPayload = (MACpayloadJoinAccept)joinAnsPhyPayload.MACpayload;
-                JoinAns joinAns = new JoinAns();
-                joinAns.MessageType = "JoinAns";
-                joinAns.TransactionID = joinReq.TransactionID;
                 joinAns.PhyPayload = joinAnsPhyPayload.Hex;
-                string json = JsonConvert.SerializeObject(joinAns);
-                Logger.LogWriteSent(json, "JoinServer", "NetworkServer");
-                _httpClient.PostAsJsonAsync(Appsettings.NetworkServerURL, json).Wait();
-
+                
+                // Calculate Keys
                 var keys = Cryptography.GenerateSessionKeys(
                     Utils.HexStringToByteArray(device.AppKey),
                     Utils.HexStringToByteArray(joinAcceptMacPayload.NetID),
@@ -64,6 +69,23 @@ namespace JoinServer
 
                 device.NwkSKey = BitConverter.ToString(keys.NwkSKey).Replace("-", "");
                 device.AppSKey = BitConverter.ToString(keys.AppSKey).Replace("-", "");
+
+                // Send Keys with Join Answer
+                KeyEnvelope envelopeNwkSKey = new KeyEnvelope();
+                envelopeNwkSKey.AesKey = device.NwkSKey;
+                KeyEnvelope envelopeAppSKey = new KeyEnvelope();
+                envelopeAppSKey.AesKey = device.AppSKey;
+
+                joinAns.NwkSKey = envelopeNwkSKey;
+                joinAns.AppSKey = envelopeAppSKey;
+
+                joinAns.Result.ResultCode = Result.RESULT_CODE_SUCCESS;
+
+                // Send Join Answer
+                json = JsonConvert.SerializeObject(joinAns);
+                Logger.LogWriteSent(json, "JoinServer", "NetworkServer");
+                _httpClient.PostAsJsonAsync(Appsettings.NetworkServerURL, json).Wait();
+
                 Console.WriteLine();
             }
             else
