@@ -168,6 +168,40 @@ namespace LoRaWAN
             return AESDecrypt(key, new byte[16], data, CipherMode.ECB);
         }
 
+        public static string DecryptFRMPayload(string frmPayloadEnrcypted, bool isDownlink, string devAddr, string fCnt, string key)
+        {
+            int k = (int)Math.Ceiling(((decimal)frmPayloadEnrcypted.Length) / 16);
+            string dir = isDownlink ? "01" : "00";
+            byte[] keyBytes = Utils.HexStringToByteArray(key);
+            string s = "";
+
+            for (int i = 1; i <= k; i++)
+            {
+                string a = "0100000000" + dir + devAddr + fCnt + "00" + BitConverter.ToString(new byte[] { (byte)i });
+                byte[] aBytes = Utils.HexStringToByteArray(a);
+                byte[] decryptedBlock = AESEncrypt(keyBytes, aBytes);
+                s += BitConverter.ToString(decryptedBlock).Replace("-", "");
+            }
+
+            string temp = frmPayloadEnrcypted;
+            while ((temp.Length / 2) % 16 > 0) 
+            {
+                temp += "00";
+            }
+
+            byte[] tempBytes = Utils.HexStringToByteArray(temp);
+            byte[] sBytes = Utils.HexStringToByteArray(s);
+            byte[] frmPayloadPadBytes = new byte[tempBytes.Length];
+
+            for (int i = 0; i < frmPayloadPadBytes.Length; i++)
+            {
+                frmPayloadPadBytes[i] = (byte)(tempBytes[i] ^ sBytes[i]);
+            }
+
+            string frmPayloadPad = BitConverter.ToString(frmPayloadPadBytes).Replace("-", "");
+            return frmPayloadPad[0..frmPayloadEnrcypted.Length];
+        }
+
       
     }
 }
