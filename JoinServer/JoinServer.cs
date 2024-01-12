@@ -9,7 +9,7 @@ namespace JoinServer
     public class JoinServer : Server
     {
         private HttpClient _httpClient = new HttpClient();
-        private List<EndDevice> _devices = EndDevice.ReadEndDeviceCSVList();
+        private List<EndDevice> _devices = ReadEndDeviceCSVList();
 
         public JoinServer() : base(Appsettings.JoinServerURL) { }
 
@@ -55,7 +55,7 @@ namespace JoinServer
 
 
                 // If it's a JoinReq, create a JoinAccept PHYpayload and send a JoinAns to the Network Server
-                PHYpayload joinAnsPhyPayload = PHYpayloadFactory.CreatePHYpayloadJoinAccept("000000", "00000000", "94", "08", device.AppKey);
+                PHYpayload joinAnsPhyPayload = PHYpayloadFactory.CreatePHYpayloadJoinAccept("000000", joinReq.DevAddr, "94", "08", device.AppKey);
                 MACpayloadJoinAccept joinAcceptMacPayload = (MACpayloadJoinAccept)joinAnsPhyPayload.MACpayload;
                 joinAns.PhyPayload = joinAnsPhyPayload.Hex;
                 
@@ -102,13 +102,34 @@ namespace JoinServer
             sb.AppendLine("Enddevices:");
             foreach (EndDevice device in _devices)
             {
-                sb.AppendLine("  DevAddr: NOT SAVED YET");
-                sb.AppendLine($"    DevEUI : {device.DevEUI}");
+                sb.AppendLine($"  DevEUI : {device.DevEUI}");
+                sb.AppendLine($"    DevAddr: NOT SAVED YET");
                 sb.AppendLine($"    AppKey : {device.AppKey}");
                 sb.AppendLine($"    AppSKey: {device.AppSKey}");
                 sb.AppendLine($"    NwkSKey: {device.NwkSKey}");
             }
             return sb.ToString();
+        }
+
+        private static List<EndDevice> ReadEndDeviceCSVList()
+        {
+            var list = new List<EndDevice>();
+
+            StreamReader reader = new StreamReader("./end_devices.csv");
+            string[] head = reader.ReadLine().Split(';');
+            int indexDevEUI = Array.IndexOf(head, "DevEUI");
+            int indexAppKey = Array.IndexOf(head, "AppKey");
+
+            while (!reader.EndOfStream)
+            {
+                string[] row = reader.ReadLine().Split(';');
+                EndDevice device = new EndDevice();
+                device.DevEUI = row[indexDevEUI];
+                device.AppKey = row[indexAppKey];
+                list.Add(device);
+            }
+
+            return list;
         }
     }
 }

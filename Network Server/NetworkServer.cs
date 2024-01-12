@@ -1,17 +1,13 @@
-﻿using System.Buffers.Text;
-using System.Linq.Expressions;
-using System.Net;
-using System.Net.Http;
+﻿using System.Net;
 using System.Net.Sockets;
 using System.Text;
+using System.Transactions;
 using LoRaWAN;
 using LoRaWAN.BackendPackets;
 using LoRaWAN.PHYPayload;
 using LoRaWAN.SemtechProtocol;
 using LoRaWAN.SemtechProtocol.Data;
-using Microsoft.AspNetCore.Mvc.Razor.Infrastructure;
 using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 
 namespace NetworkServer
 {
@@ -26,6 +22,7 @@ namespace NetworkServer
         private int _port = Appsettings.NetworkServerUDP_Port;
         private Queue<byte[]> pullResponesQueue = new Queue<byte[]>();
         private List<JoinReqAndRxpk> _openJoinReqs = new List<JoinReqAndRxpk>();
+        private List<EndDevice> _endDevices = new List<EndDevice>();
         private bool _downlinkOpen = false;
         private int _pullDataPort = 0;
         private int _transactionCounter = 0;
@@ -80,11 +77,28 @@ namespace NetworkServer
                                     MACpayloadJoinRequest macPayload = (MACpayloadJoinRequest)phyPayload.MACpayload;
                                     joinRequest.PhyPayload = phyPayload.Hex;
                                     joinRequest.DevEUI = macPayload.DevEUI;
-                                    string json = JsonConvert.SerializeObject(joinRequest);
                                     JoinReqAndRxpk j = new JoinReqAndRxpk();
+
+                                    EndDevice device = FindEndDeviceWithDevEUI(macPayload.DevEUI);
+                                    if (device == null)
+                                    {
+                                        // Add new device
+                                        device = new EndDevice();
+                                        device.DevEUI = macPayload.DevEUI;
+                                        
+                                        // Generate new DevAddr
+                                        string devAddr = BitConverter.ToString(BitConverter.GetBytes(_endDevices.Count).Reverse().ToArray()).Replace("-", "");
+
+                                        device.DevAddr = devAddr;
+                                        _endDevices.Add(device);
+                                    }
+
+                                    joinRequest.DevAddr = device.DevAddr;
                                     j.JoinReq = joinRequest;
                                     j.Rxpk = rxpk;
                                     _openJoinReqs.Add(j);
+
+                                    string json = JsonConvert.SerializeObject(joinRequest);
                                     Logger.LogWriteSent(json, "NetworkServer", "JoinServer");
                                     _httpClient.PostAsJsonAsync(Appsettings.JoinServerURL, json).Wait();
                                 }
@@ -93,7 +107,18 @@ namespace NetworkServer
                                     DataUp dataUp = new DataUp();
                                     dataUp.TransactionID = ++_transactionCounter;
                                     dataUp.MessageType = "DataUp_unconf";
-                                    dataUp.PhyPayload = PHYpayloadFactory.DecodePHYPayloadFromBase64(rxpk.Data).Hex;
+                                    PHYpayload phyPayload = PHYpayloadFactory.DecodePHYPayloadFromBase64(rxpk.Data);
+                                    dataUp.PhyPayload = phyPayload.Hex;
+                                    MACpayloadData data = (MACpayloadData)phyPayload.MACpayload;
+
+                                    EndDevice device = FindEndDeviceWithDevAddr(data.Fhdr.DevAddr);
+                                    if (device != null && device.AppSKey != null)
+                                    {
+                                        KeyEnvelope keyEnvelope = new KeyEnvelope();
+                                        keyEnvelope.AesKey = device.AppSKey;
+                                        dataUp.AppSKey = keyEnvelope;
+                                    }
+
                                     string json = JsonConvert.SerializeObject(dataUp);
                                     Logger.LogWriteSent(json, "NetworkServer", "ApplicationServer");
                                     _httpClient.PostAsJsonAsync(Appsettings.ApplicationServerURL, json).Wait();
@@ -179,7 +204,19 @@ namespace NetworkServer
                 // Decode phyPayload from hex and create and enqueue a pull response
                 JoinAns joinAns = (JoinAns)packet;
                 JoinReqAndRxpk j = FindJoinReqWithTransactionID(packet.TransactionID);
+
+                if (joinAns.Result.ResultCode != Result.RESULT_CODE_SUCCESS || j == null)
+                {
+                    // Join was not successful, ignore request
+                    return;
+                }
+
                 PHYpayload phyPayload = PHYpayloadFactory.DecodePHYPayloadFromHex(joinAns.PhyPayload);
+
+                EndDevice device = FindEndDeviceWithDevAddr(j.JoinReq.DevAddr);
+                if (joinAns.AppSKey != null) device.AppSKey = joinAns.AppSKey.AesKey;
+                if (joinAns.NwkSKey != null) device.NwkSKey = joinAns.NwkSKey.AesKey;
+
                 PullResp pullResp = SemtechPacketFactory.CreatePullResp(SemtechPacketFactory.GenerateRandomToken(), phyPayload.Hex, j.Rxpk.Freq, j.Rxpk.Datr, j.Rxpk.Codr, j.Rxpk.Tmst + JOIN_ACCEPT_DELAY1);
                 byte[] pullRespBytes = pullResp.EncodeSemtechPacket();
 
@@ -206,7 +243,32 @@ namespace NetworkServer
             {
                 if (j.JoinReq.TransactionID == transactionID)
                 {
+                    _openJoinReqs.Remove(j);
                     return j;
+                }
+            }
+            return null;
+        }
+
+        private EndDevice? FindEndDeviceWithDevAddr(string devAddr)
+        {
+            foreach (EndDevice device in _endDevices)
+            {
+                if (device.DevAddr == devAddr)
+                {
+                    return device;
+                }
+            }
+            return null;
+        }
+
+        private EndDevice? FindEndDeviceWithDevEUI(string DevEUI)
+        {
+            foreach (EndDevice device in _endDevices)
+            {
+                if (device.DevEUI == DevEUI)
+                {
+                    return device;
                 }
             }
             return null;
@@ -229,6 +291,18 @@ namespace NetworkServer
             foreach (byte[] bytes in pullResponesQueue)
             {
                 sb.AppendLine($"[{BitConverter.ToString(bytes)}]");
+            }
+
+            // End devices
+            sb.AppendLine();
+            sb.AppendLine("Enddevices:");
+            foreach (EndDevice device in _endDevices)
+            {
+                sb.AppendLine($"  DevAddr: {device.DevAddr}");
+                sb.AppendLine($"    DevEUI : {device.DevEUI}");
+                sb.AppendLine($"    AppKey : {device.AppKey}");
+                sb.AppendLine($"    AppSKey: {device.AppSKey}");
+                sb.AppendLine($"    NwkSKey: {device.NwkSKey}");
             }
 
             return sb.ToString();
