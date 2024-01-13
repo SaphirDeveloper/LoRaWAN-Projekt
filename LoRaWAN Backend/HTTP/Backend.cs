@@ -7,6 +7,9 @@ namespace LoRaWAN.HTTP
         public static IWebHost CreateWebHost(string[] args, Server server) => 
             WebHost.CreateDefaultBuilder(args)
                 .ConfigureServices((services) => services.AddSingleton(server))
+                .ConfigureLogging(config => {
+                    config.ClearProviders();
+                })
                 .UseStartup<Startup>()
                 .UseUrls(server.URL).Build();
     }

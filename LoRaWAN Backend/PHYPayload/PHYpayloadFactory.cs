@@ -40,7 +40,6 @@ namespace LoRaWAN.PHYPayload
                     break;
                 case "40":
                     // unconfirmed Data uplink
-                    Console.WriteLine("//unconfirmed Data uplink");
                     macPayload = DecodeMACpayloadDataUp(hexMACpayload);
                     break;
                 case "60":
@@ -127,7 +126,7 @@ namespace LoRaWAN.PHYPayload
         //PhyPayload with optinal cflist
         public static PHYpayload CreatePHYpayloadJoinAccept(string netID, string devAddr, string dlSettings, string rxDelay, string cfList, string appKey)
         {
-            string appNonce = Utils.GenerateUniqueRandomNumber(new byte[3]);
+            string appNonce = "923337";
             return CreatePHYpayloadJoinAccept(appNonce, netID, devAddr, dlSettings, rxDelay, cfList, appKey);
         }
 

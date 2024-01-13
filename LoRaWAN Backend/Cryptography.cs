@@ -170,14 +170,14 @@ namespace LoRaWAN
 
         public static string DecryptFRMPayload(string frmPayloadEnrcypted, bool isDownlink, string devAddr, string fCnt, string key)
         {
-            int k = (int)Math.Ceiling(((decimal)frmPayloadEnrcypted.Length) / 16);
+            int k = (int)Math.Ceiling(((decimal)frmPayloadEnrcypted.Length) / 32);
             string dir = isDownlink ? "01" : "00";
             byte[] keyBytes = Utils.HexStringToByteArray(key);
             string s = "";
 
             for (int i = 1; i <= k; i++)
             {
-                string a = "0100000000" + dir + devAddr + fCnt + "00" + BitConverter.ToString(new byte[] { (byte)i });
+                string a = "0100000000" + dir + Utils.EndianReverseHexString(devAddr) + Utils.EndianReverseHexString(fCnt) + "00" + BitConverter.ToString(new byte[] { (byte)i });
                 byte[] aBytes = Utils.HexStringToByteArray(a);
                 byte[] decryptedBlock = AESEncrypt(keyBytes, aBytes);
                 s += BitConverter.ToString(decryptedBlock).Replace("-", "");
