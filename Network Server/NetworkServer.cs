@@ -174,6 +174,7 @@ namespace NetworkServer
                             Logger.LogWriteSent(BitConverter.ToString(pullResp), "NetworkServer", "Gateway");
                         }
                     }
+                    // checking for pull data acknowledge
                     else if (packet.Id == "05")
                     {
                         // Receive and process tx ack
@@ -310,6 +311,7 @@ namespace NetworkServer
 
         public void Dispose()
         {
+            Console.WriteLine("UDP Client was disposed...");
             _udpClient.Close();
             _udpClient.Dispose();
         }
