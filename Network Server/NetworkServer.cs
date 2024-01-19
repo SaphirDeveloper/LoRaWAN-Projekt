@@ -190,9 +190,9 @@ namespace NetworkServer
                         }
                     }
                 }
-                catch (Exception)
+                catch (Exception e)
                 {
-                    // Ignore Exception
+                    Console.Error.WriteLine(e.Message);
                 }
             }
         }
