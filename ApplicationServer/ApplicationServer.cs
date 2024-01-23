@@ -35,7 +35,6 @@ namespace ApplicationServer
                     int ext = bytes[6];
                     int systimestamp = (bytes[7] << 24 | bytes[8] << 16 | bytes[9] << 8 | bytes[10]);
 
-                    Console.WriteLine();
                     Console.WriteLine($"DevAddr: {macPayloadData.Fhdr.DevAddr}");
                     Console.WriteLine($"  FRMPayload (Decrypted): {frmPayloadDecrypted}");
                     Console.WriteLine($"  Temperature: {tempC_SHT}");
@@ -67,7 +66,6 @@ namespace ApplicationServer
                     byte sub_Band = bytes[4];
                     int bat_mV = bytes[5] << 8 | bytes[6];
 
-                    Console.WriteLine();
                     Console.WriteLine($"DevAddr: {macPayloadData.Fhdr.DevAddr}");
                     Console.WriteLine($"  FRMPayload (Decrypted): {frmPayloadDecrypted}");
                     Console.WriteLine($"  Sensor Model: {sensor_Model}");
@@ -78,7 +76,6 @@ namespace ApplicationServer
                 }
                 else
                 {
-                    Console.WriteLine();
                     Console.WriteLine("Invalid FPort and/or frame payload length");
                     Console.WriteLine($"  PHYPayload: {phyPayload.Hex}");
                     Console.WriteLine($"  DevAddr: {macPayloadData.Fhdr.DevAddr}");
@@ -88,7 +85,6 @@ namespace ApplicationServer
             } 
             else
             {
-                Console.WriteLine();
                 Console.WriteLine($"Cannot process packet with type '{packet.MessageType}'");
             }
         }

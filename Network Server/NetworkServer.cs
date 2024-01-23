@@ -48,16 +48,18 @@ namespace NetworkServer
                     // Await UDP packet
                     byte[] bytes = _udpClient.Receive(ref _groupEP);
                     Logger.LogWrite(BitConverter.ToString(bytes), "NetworkServer");
+                    Console.WriteLine();
                     SemtechPacket packet = SemtechPacketFactory.DecodeSemtechPacket(bytes);
 
                     // checking for push data packet
                     if (packet.Id == "00")
                     {
                         PushData pushData = (PushData)packet;
-                        byte[] ack = pushData.CreatePushAck().EncodeSemtechPacket();
+                        Console.WriteLine($"Push data with token {pushData.Token} received");
 
-                        Console.WriteLine(BitConverter.ToString(ack));
+                        byte[] ack = pushData.CreatePushAck().EncodeSemtechPacket();
                         _udpClient.Send(ack, ack.Length, _groupEP);
+                        Console.WriteLine($"Push ack with token {pushData.Token} sended");
 
                         if (pushData.rxpks != null)
                         {
@@ -100,6 +102,7 @@ namespace NetworkServer
 
                                     string json = JsonConvert.SerializeObject(joinRequest);
                                     Logger.LogWriteSent(json, "NetworkServer", "JoinServer");
+                                    Console.WriteLine($"JSON sended to Join Server (Join Req):\n{json}");
                                     _httpClient.PostAsJsonAsync(Appsettings.JoinServerURL, json).Wait();
                                 }
                                 if (mType == "010")
@@ -121,6 +124,7 @@ namespace NetworkServer
 
                                     string json = JsonConvert.SerializeObject(dataUp);
                                     Logger.LogWriteSent(json, "NetworkServer", "ApplicationServer");
+                                    Console.WriteLine($"JSON sended to Application Server (unconfirmed Data up):\n{json}");
                                     _httpClient.PostAsJsonAsync(Appsettings.ApplicationServerURL, json).Wait();
                                 }
                                 if (mType == "100")
@@ -131,6 +135,7 @@ namespace NetworkServer
                                     dataUp.PhyPayload = PHYpayloadFactory.DecodePHYPayloadFromBase64(rxpk.Data).Hex;
                                     string json = JsonConvert.SerializeObject(dataUp);
                                     Logger.LogWriteSent(json, "NetworkServer", "ApplicationServer");
+                                    Console.WriteLine($"JSON sended to Application Server (confirmed Data up):\n{json}");
                                     _httpClient.PostAsJsonAsync(Appsettings.ApplicationServerURL, json).Wait();
                                 }
                                 if (mType == "011")
@@ -140,6 +145,8 @@ namespace NetworkServer
                                     dataDown.MessageType = "DataDown_unconf";
                                     dataDown.PhyPayload = PHYpayloadFactory.DecodePHYPayloadFromBase64(rxpk.Data).Hex;
                                     string json = JsonConvert.SerializeObject(dataDown);
+                                    Logger.LogWriteSent(json, "NetworkServer", "ApplicationServer");
+                                    Console.WriteLine($"JSON sended to Application Server (unconfirmed Data down):\n{json}");
                                     _httpClient.PostAsJsonAsync(Appsettings.ApplicationServerURL, json).Wait();
                                 }
                                 if (mType == "101")
@@ -149,6 +156,8 @@ namespace NetworkServer
                                     dataDown.MessageType = "DataDown_conf";
                                     dataDown.PhyPayload = PHYpayloadFactory.DecodePHYPayloadFromBase64(rxpk.Data).Hex;
                                     string json = JsonConvert.SerializeObject(dataDown);
+                                    Logger.LogWriteSent(json, "NetworkServer", "ApplicationServer");
+                                    Console.WriteLine($"JSON sended to Application Server (confirmed Data down):\n{json}");
                                     _httpClient.PostAsJsonAsync(Appsettings.ApplicationServerURL, json).Wait();
                                 }
                             }
@@ -159,9 +168,12 @@ namespace NetworkServer
                     {
                         // Create and send pull acknowledgment
                         PullData pullData = (PullData)packet;
+                        Console.WriteLine($"Pull data with token {pullData.Token} received");
+
                         byte[] ack = pullData.CreatePullAck().EncodeSemtechPacket();
-                        Console.WriteLine(BitConverter.ToString(ack));
                         _udpClient.Send(ack, ack.Length, _groupEP);
+                        Console.WriteLine($"Pull ack with token {pullData.Token} sended");
+
                         _downlinkOpen = true;
                         _pullDataPort = _groupEP.Port;
 
@@ -171,6 +183,7 @@ namespace NetworkServer
                             byte[] pullResp = pullResponesQueue.Dequeue();
                             _groupEP.Port = _pullDataPort;
                             _udpClient.Send(pullResp, pullResp.Length, _groupEP);
+                            Console.WriteLine($"Txpk with token {BitConverter.ToString(pullResp[1..3]).Replace("-", "")} sended");
                             Logger.LogWriteSent(BitConverter.ToString(pullResp), "NetworkServer", "Gateway");
                         }
                     }
@@ -178,7 +191,7 @@ namespace NetworkServer
                     else if (packet.Id == "05")
                     {
                         // Receive and process tx ack
-                        Console.WriteLine("TxAck received");
+                        Console.WriteLine($"Txpk Ack with token {packet.Token} received");
 
                         // start dequeuing aslong pull response queue isn't empty 
                         if (pullResponesQueue.Count > 0)
@@ -186,6 +199,7 @@ namespace NetworkServer
                             byte[] pullResp = pullResponesQueue.Dequeue();
                             _groupEP.Port = _pullDataPort;
                             _udpClient.Send(pullResp, pullResp.Length, _groupEP);
+                            Console.WriteLine($"Txpk with token {BitConverter.ToString(pullResp[1..3]).Replace("-", "")} sended");
                             Logger.LogWriteSent(BitConverter.ToString(pullResp), "NetworkServer", "Gateway");
                         }
                     }
@@ -226,6 +240,7 @@ namespace NetworkServer
                     _groupEP.Port = _pullDataPort;
                     _udpClient.Send(pullRespBytes, pullRespBytes.Length, _groupEP);
                     Logger.LogWriteSent(BitConverter.ToString(pullRespBytes), "NetworkServer", "Gateway");
+                    Console.WriteLine($"Txpk with token {pullResp.Token} sended");
                 }
                 else
                 {

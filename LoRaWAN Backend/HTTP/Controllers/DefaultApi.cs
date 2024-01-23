@@ -32,8 +32,19 @@ namespace LoRaWAN.HTTP.Controllers
         public virtual IActionResult RootPost([FromBody] string json)
         {
             Logger.LogWrite(json, _server.GetType().Name);
-            BackendPacket packet = JsonConvert.DeserializeObject<BackendPacket>(json);
-            _server.ProcessPacket(packet);
+            Console.WriteLine($"\nJSON received:\n{json}");
+
+            try
+            {
+                BackendPacket packet = JsonConvert.DeserializeObject<BackendPacket>(json);
+                _server.ProcessPacket(packet);
+            }
+            catch (Exception ex)
+            {
+                Console.Error.WriteLine(ex.Message);
+                return StatusCode(500);
+            }
+            
             return StatusCode(200);
         }
 

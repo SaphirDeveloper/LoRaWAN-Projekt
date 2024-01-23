@@ -49,6 +49,7 @@ namespace JoinServer
                     // Send Join Answer
                     json = JsonConvert.SerializeObject(joinAns);
                     Logger.LogWriteSent(json, "JoinServer", "NetworkServer");
+                    Console.WriteLine($"JSON sended to Network Server:\n{json}");
                     _httpClient.PostAsJsonAsync(Appsettings.NetworkServerURL, json).Wait();
                     return;
                 }
@@ -84,9 +85,8 @@ namespace JoinServer
                 // Send Join Answer
                 json = JsonConvert.SerializeObject(joinAns);
                 Logger.LogWriteSent(json, "JoinServer", "NetworkServer");
+                Console.WriteLine($"JSON sended to Network Server:\n{json}");
                 _httpClient.PostAsJsonAsync(Appsettings.NetworkServerURL, json).Wait();
-
-                Console.WriteLine();
             }
             else
             {
