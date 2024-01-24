@@ -4,7 +4,7 @@
     {
         public string Time;
         public long Tmms;
-        public int Tmst;
+        public uint Tmst;
         public float Freq;
         public int Chan;
         public int Rfch;
@@ -17,7 +17,7 @@
         public int Size;
         public string Data;
 
-        public Rxpk(string time, long tmms, int tmst, float freq, int chan, int rfch, int stat, string modu,
+        public Rxpk(string time, long tmms, uint tmst, float freq, int chan, int rfch, int stat, string modu,
             string datr, string codr, int rssi, float lsnr, int size, string data)
         {
             Time = time;

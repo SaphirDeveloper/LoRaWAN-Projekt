@@ -8,8 +8,7 @@ namespace LoRaWAN.SemtechProtocol.Data
         [JsonProperty("imme")]
         public bool Imme;
         [JsonProperty("tmst",DefaultValueHandling = DefaultValueHandling.IgnoreAndPopulate)]
-        [DefaultValue(-1)]
-        public int Tmst = -1;
+        public uint Tmst = 0;
         [JsonProperty("tmms", DefaultValueHandling = DefaultValueHandling.IgnoreAndPopulate)]
         [DefaultValue(-1)]
         public long Tmms = -1;

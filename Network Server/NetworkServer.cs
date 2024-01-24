@@ -14,7 +14,7 @@ namespace NetworkServer
     public class NetworkServer : Server, IDisposable
     {
         // Field
-        private static readonly int JOIN_ACCEPT_DELAY1 = 5000000; // 5s
+        private static readonly uint JOIN_ACCEPT_DELAY1 = 5000000; // 5s
         private HttpClient _httpClient = new HttpClient();
         private Thread _udpListnerThread;
         private UdpClient _udpClient;
